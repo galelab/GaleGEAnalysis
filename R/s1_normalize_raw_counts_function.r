@@ -56,6 +56,12 @@ s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE
         write.csv(V.CPM$E, file=file.path(results_path,"1.matrix_norm.csv"))
         saveRDS(design, file=file.path(results_path, "1.designfile.rds"))
 
+        if (visualize_data == TRUE) { 
+            print("STATUS: generating figures")
+            vizualize_counts(files$counts, files$targets$treatment, count_matrix_flv, figres=figres, results_path=results_path)
+        }
+
+
         results_norm <- list("norm_exprs_voom" = V.CPM, "design" = design)
 
         return (results_norm)
