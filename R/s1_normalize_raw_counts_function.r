@@ -16,7 +16,7 @@
 s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE, FilterGenesWithCounts=100, figres=100) { 
     ###READ IN FILES
     print("STATUS: loading files")
-    files <- loadfiles(count_file=countfile, targets_file=targetfile)
+    files <- loadfiles(count_file=countfile, target_file=targetfile)
     DE_DF <- DGEList(counts = files$counts)
 
     #FILTER OUT GENES WITH LOW COUNTS
@@ -43,26 +43,14 @@ s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE
         Treatment <- factor(files$targets$treatment, levels=unique(files$targets$treatment))
         design <- model.matrix(~0 + Treatment)
         colnames(design) <- levels(Treatment)
-
+        results_path <- generate_folder('s1_norm_raw_counts_results')
+        
         ###RUN VOOM
         print("STATUS: running voom")
-        png('1.voomplot.png', res=figres)
+        png(file.path(results_path,'1.voomplot.png'), res=figres)
         par(mar=c(1,1,1,1))
         V.CPM = voom(DE_DF_fl_norm, design=design, plot=T, span=0.1)
         dev.off()
-
-        ###GENERATEOUTPUT DIRECTORY IN CURRENT WORKING DIRECTORY 
-        workDir <-getwd()
-        subDir='s1_norm_raw_counts_results'
-        results_path = file.path(workDir, subDir)
-        if (file.exists(subDir)){
-        } else { 
-            dir.create(results_path)
-        }
-        if (visualize_data == TRUE) { 
-            print("STATUS: generating figures")
-            vizualize_counts(files$counts, files$targets$treatment, count_matrix_flv, figres=figres, results_path=results_path)
-        }
 
         ###save normalized counts and design variable used for linear modeling later
         write.csv(V.CPM$E, file=file.path(results_path,"1.matrix_norm.csv"))
@@ -75,24 +63,16 @@ s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE
 }
 
 ###OTHER FUNCTIONS USED BY normalize_raw_counts
-loadfiles <- function(count_file, targets_file) {
-    #Load in count data  and target information from csv'
-    counts <- read.table(count_file, header = TRUE, sep = "\t", row.names=1, as.is = TRUE)
-    targets <- read.table(targets_file, header = TRUE, sep = ",", row.names = 1, as.is = TRUE)
-    results <- list("counts" = counts, "targets" = targets)
-    return(results)
-}
-
 vizualize_counts <- function(countsmatrix, labels, count_matrix_flv, figres=100, results_path) {
     #Generate figures for counts
     print('STATUS: generating log2 boxplot of counts')
-    png(file.path(results_path, "1.boxplot_count_matrix.png"), res=figres)
+    png(file.path(results_path, "1.boxplot_raw_count_matrix.png"), res=figres)
     # par(mar=c(1,1,1,1))
     boxplot(log2(countsmatrix+1), labels = labels, ylab = "log2 Expression", main = "Raw count_matrix", cex.axis=.6, las=2)
     dev.off()
 
     print('STATUS: generating density plot of all sample counts')
-    png(file.path(results_path, "1.densities_count_matrix.png"), res=figres)
+    png(file.path(results_path, "1.densities_raw_count_matrix.png"), res=figres)
     # par(mar=c(1,1,1,1))
     if (length(labels) > 10) {
         plotDensities(log2(countsmatrix+1), legend = FALSE)    
@@ -102,7 +82,7 @@ vizualize_counts <- function(countsmatrix, labels, count_matrix_flv, figres=100,
     dev.off()
 
     print('STATUS: generating biological varation vs abundance')
-    png(file.path(results_path, "1.biologicalcoefficentvariation.png"), res=figres)
+    png(file.path(results_path, "1.biologicalcoefficentvariation_raw.png"), res=figres)
     # par(mar=c(1,1,1,1))
     plotBCV(count_matrix_flv, cex=0.4, main="Biological coefficient of variation (BCV) vs abundance")
     dev.off()

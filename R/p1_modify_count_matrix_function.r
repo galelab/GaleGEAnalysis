@@ -40,23 +40,3 @@ p1_modify_count_matrix <- function(countfile, targetfile, samples_to_remove_coun
     }
     print ('STATUS: NO SAMPLES REMOVED')
 }
-
-
-loadfiles <- function(count_file, targets_file) {
-    #Load in count data  and target information from csv'
-    counts <- read.table(count_file, header = TRUE, sep = "\t", row.names=1, as.is = TRUE)
-    targets <- read.table(targets_file, header = TRUE, sep = ",", row.names = 1, as.is = TRUE)
-    results <- list("counts" = counts, "targets" = targets)
-    return(results)
-}
-
-generate_folder <- function(foldername) {
-    workDir <-getwd()
-    subDir = foldername
-    results_path = file.path(workDir, subDir)
-    if (file.exists(subDir)){
-    } else { 
-        dir.create(results_path)
-    }
-    return (results_path)
-}
