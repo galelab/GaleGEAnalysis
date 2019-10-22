@@ -68,7 +68,7 @@ vizualize_counts <- function(countsmatrix, labels, count_matrix_flv, figres=100,
     print('STATUS: generating log2 boxplot of counts')
     png(file.path(results_path, "1.boxplot_raw_count_matrix.png"), res=figres)
     # par(mar=c(1,1,1,1))
-    boxplot(log2(countsmatrix+1), labels = labels, ylab = "log2 Expression", main = "Raw count_matrix", cex.axis=.6, las=2)
+    boxplot(log2(countsmatrix+1), labels = labels, ylab = "log2 Expression", main = "Raw count_matrix", cex.axis=.6, las=2, frame=FALSE)
     dev.off()
 
     print('STATUS: generating density plot of all sample counts')
