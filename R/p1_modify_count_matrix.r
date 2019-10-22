@@ -30,8 +30,8 @@ p1_modify_count_matrix <- function(countfile, targetfile, samples_to_remove_coun
             print(paste0('STATUS: The number of samples removed were ', length(samples_to_remove_count_matrix)))
             results_path <- generate_folder('p1_modified_count_matrix_results')
 
-            write.table(modcounts, file=file.path(results_path,"count_matrix_mod.txt"))
-            write.csv(modtargets, file=file.path(results_path,"targets_mod.csv"))
+            write.table(data.frame("Name"=rownames(modcounts), modcounts), sep = "\t", row.names=FALSE, file=file.path(results_path,"count_matrix_mod.txt"))
+            write.csv(data.frame("Name"=rownames(modtargets), modtargets), row.names=FALSE, file=file.path(results_path,"targets_mod.csv"))
             
             results <- list("counts" = modcounts, "targets" = modtargets)
             
