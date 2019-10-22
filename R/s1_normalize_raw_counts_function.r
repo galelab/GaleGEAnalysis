@@ -4,7 +4,7 @@
 #' @param countfile raw counts table (generally output by htseq).
 #' @param targetfile target file.
 #' @param vizualize_data whether or not to generate figures (default set to true).
-#' @param  FilterGenesWithCounts filter out genes with counts below a certain value, (default set to 100).
+#' @param  FilterGenesWithCounts filter out genes with counts below a certain value, (default set to 0).
 #' @param  figres resolution at which to output figures (default is 300).
 #' @keywords gene expression normalization
 #' @export
@@ -13,7 +13,7 @@
 #' @examples
 #' normalize_raw_counts(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
 
-s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE, FilterGenesWithCounts=100, figres=100) { 
+s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE, FilterGenesWithCounts=0, figres=100) { 
     ###READ IN FILES
     print("STATUS: loading files")
     files <- loadfiles(count_file=countfile, target_file=targetfile)
@@ -58,7 +58,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE
 
         if (visualize_data == TRUE) { 
             print("STATUS: generating figures")
-            vizualize_counts(files$counts, files$targets$treatment, count_matrix_flv, figres=figres, results_path=results_path)
+            vizualize_counts(files$counts, V.CPM$E, files$targets$treatment, count_matrix_flv, figres=figres, results_path=results_path)
         }
 
 
@@ -69,13 +69,24 @@ s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE
 }
 
 ###OTHER FUNCTIONS USED BY normalize_raw_counts
-vizualize_counts <- function(countsmatrix, labels, count_matrix_flv, figres=100, results_path) {
+vizualize_counts <- function(countsmatrix, norm_exprs, labels, count_matrix_flv, figres=100, results_path) {
     #Generate figures for counts
     print('STATUS: generating log2 boxplot of counts')
     png(file.path(results_path, "1.boxplot_raw_count_matrix.png"), res=figres)
     # par(mar=c(1,1,1,1))
-    boxplot(log2(countsmatrix+1), labels = labels, ylab = "log2 Expression", main = "Raw count_matrix", cex.axis=.6, las=2, frame=FALSE)
+    minvalue <-min(log2(countsmatrix+1))
+    maxvalue <- max(log2(countsmatrix+1))
+    boxplot(log2(countsmatrix+1), labels = labels, ylim=c(minvalue-5, maxvalue+5), ylab = "log2 Expression", main = "Raw count matrix", cex.axis=.6, las=2, frame=FALSE)
     dev.off()
+
+    print('STATUS: generating boxplot of normalized voom counts')
+    png(file.path(results_path, "1.boxplot_vnorm_matrix.png"), res=figres)
+    # par(mar=c(1,1,1,1))
+    minvalue <-min(norm_exprs)
+    maxvalue <- max(norm_exprs)
+    boxplot(norm_exprs, labels = labels, ylim=c(minvalue-1, maxvalue+1), ylab = "log2 Expression", main = "Raw count matrix", cex.axis=.6, las=2, frame=FALSE)
+    dev.off()
+
 
     print('STATUS: generating density plot of all sample counts')
     png(file.path(results_path, "1.densities_raw_count_matrix.png"), res=figres)
@@ -86,6 +97,17 @@ vizualize_counts <- function(countsmatrix, labels, count_matrix_flv, figres=100,
         plotDensities(log2(countsmatrix+1), legend = "topright", levels(labels))
     }
     dev.off()
+
+    print('STATUS: generating density plot of normalized voom counts')
+    png(file.path(results_path, "1.densities_vnorm_matrix.png"), res=figres)
+    # par(mar=c(1,1,1,1))
+    if (length(labels) > 10) {
+        plotDensities(norm_exprs, legend = FALSE)    
+    } else {
+        plotDensities(norm_exprs, legend = "topright", levels(labels))
+    }
+    dev.off()
+
 
     print('STATUS: generating biological varation vs abundance')
     png(file.path(results_path, "1.biologicalcoefficentvariation_raw.png"), res=figres)
