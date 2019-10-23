@@ -54,6 +54,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE
 
         ###save normalized counts and design variable used for linear modeling later
         write.table(data.frame(V.CPM$E), sep='\t', col.names=NA, file=file.path(results_path,"1.matrix_norm.txt"))
+        saveRDS(V.CPM, file.path(results_path, "1.voomobject.rds"))
         saveRDS(design, file=file.path(results_path, "1.designfile.rds"))
 
         if (visualize_data == TRUE) { 
