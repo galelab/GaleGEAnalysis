@@ -5,14 +5,14 @@
 \title{s1 normalize raw counts function following Gale lab protocol}
 \usage{
 s1_normalize_raw_counts(countfile, targetfile, visualize_data = TRUE,
-  FilterGenesWithCounts = 100, figres = 100)
+  FilterGenesWithCounts = 0, figres = 100)
 }
 \arguments{
 \item{countfile}{raw counts table (generally output by htseq).}
 
 \item{targetfile}{target file.}
 
-\item{FilterGenesWithCounts}{filter out genes with counts below a certain value, (default set to 100).}
+\item{FilterGenesWithCounts}{filter out genes with counts below a certain value, (default set to 0).}
 
 \item{figres}{resolution at which to output figures (default is 300).}
 
