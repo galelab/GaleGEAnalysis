@@ -22,7 +22,7 @@ s2_feature_reduction <- function(countfile, targetfile, figres=100) {
     files <- loadfiles(count_file=countfile, target_file=targetfile)
     results_path <- generate_folder('s2_feature_reduction_results')
     vizualize_feature_reduction_data(files$counts, files$target$treatment,results_path, figres)
-    # pvca(files$counts, files$target, results_path)
+    pvca(files$counts, files$target, results_path)
     pca(files$counts, files$target, results_path)
 
 }
@@ -68,12 +68,11 @@ pvca <- function(exprs, covrts, results_path, figres=100) {
 pca<-function(exprs, labels, results_path, figres=100) {
     normcounts <-exprs
     normcounts300<-normcounts[sample(1:nrow(normcounts),300),]
-    pca12 <-RNAseqDE::counts2PCA(counts = normcounts, info = labels$Animal_Outcome, ids = targets$animal.ID)
-    vizualize_pca(file.path(results_path, '2.pca_vnorm_matrix.png'), pca12, labels$Sex, labels$Animal_Outcome, figres)
     pca <- prcomp(t(normcounts))
     cx <- sweep(t(normcounts), 2, colMeans(t(normcounts)), "-")
     sv <- svd(cx)
-    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix2.png'), sv$u, labels$Sex, labels$Animal_Outcome, figres)
+    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix.png'), sv$u, labels$Sex, labels$Animal_Outcome, figres)
+    vizualize_pca1(file.path(results_path, '2.pca_vnorm_matrix.png'), pca$x, labels$Sex, labels$Animal_Outcome, figres)    
     vizualize_scree_plot(file.path(results_path, '2.scree_vnorm_matrix.png'), pca, figres)
     loadingscores <- as.data.frame(pca$rotation)
     loadingscores <- loadingscores[with(loadingscores, order(-PC1)),]
@@ -84,21 +83,21 @@ pca<-function(exprs, labels, results_path, figres=100) {
 
 }
 
-vizualize_pca<-function(plot_file, PCA, class1, class2, figres) { 
-    minx<-min(PCA[[1]]$PC1)
-    maxx<-max(PCA[[1]]$PC1)
-    miny<-min(PCA[[1]]$PC2)
-    maxy<-max(PCA[[1]]$PC2)
-    png(plot_file, res = figres)
-    plot(PCA[[1]]$PC1, PCA[[1]]$PC2, frame=FALSE, ylim=c(miny-5, maxy+5),
-         xlim=c(minx-5, maxx+5), pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)) )
+# vizualize_pca<-function(plot_file, PCA, class1, class2, figres) { 
+#     minx<-min(PCA[[1]]$PC1)
+#     maxx<-max(PCA[[1]]$PC1)
+#     miny<-min(PCA[[1]]$PC2)
+#     maxy<-max(PCA[[1]]$PC2)
+#     png(plot_file, res = figres)
+#     plot(PCA[[1]]$PC1, PCA[[1]]$PC2, frame=FALSE, ylim=c(miny-5, maxy+5),
+#          xlim=c(minx-5, maxx+5), pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)) )
 
-    legend("topright", bty = "n", pch=as.numeric(as.factor(as.numeric(as.factor(class1)))),
-           legend= levels(as.factor(class1)))
-    legend("bottomright", bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
-            legend= c(levels(as.factor(class2))))
-    dev.off()
-}
+#     legend("topright", bty = "n", pch=as.numeric(as.factor(as.numeric(as.factor(class1)))),
+#            legend= levels(as.factor(class1)))
+#     legend("bottomright", bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
+#             legend= c(levels(as.factor(class2))))
+#     dev.off()
+# }
 vizualize_pca1<-function(plot_file, PCA, class1, class2, figres) { 
     minx<-min(PCA[,1])
     maxx<-max(PCA[,1])
