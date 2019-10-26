@@ -95,6 +95,7 @@ pca<-function(exprs, labels, results_path, figres=100) {
 #             legend= c(levels(as.factor(class2))))
 #     dev.off()
 # }
+
 vizualize_pca1<-function(plot_file, PCA, class1, class2, figres) { 
     minx<-min(PCA[,1])
     maxx<-max(PCA[,1])
