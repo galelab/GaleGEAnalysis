@@ -11,6 +11,8 @@
 #' @import Biobase
 #' @import ExpressionNormalizationWorkflow
 #' @import stringr
+#' @import stats
+#' @import factoextra
 #' @examples
 #' s2_feature_reduction(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
 
@@ -66,8 +68,19 @@ pvca <- function(exprs, covrts, results_path, figres=100) {
 pca<-function(exprs, labels, results_path, figres=100) {
     normcounts <-exprs
     normcounts300<-normcounts[sample(1:nrow(normcounts),300),]
-    pca12 <-RNAseqDE::counts2PCA(counts = normcounts300, info = labels$Animal_Outcome, ids = targets$animal.ID)
+    pca12 <-RNAseqDE::counts2PCA(counts = normcounts, info = labels$Animal_Outcome, ids = targets$animal.ID)
     vizualize_pca(file.path(results_path, '2.pca_vnorm_matrix.png'), pca12, labels$Sex, labels$Animal_Outcome, figres)
+    pca <- prcomp(t(normcounts))
+    cx <- sweep(t(normcounts), 2, colMeans(t(normcounts)), "-")
+    sv <- svd(cx)
+    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix2.png'), sv$u, labels$Sex, labels$Animal_Outcome, figres)
+    vizualize_scree_plot(file.path(results_path, '2.scree_vnorm_matrix.png'), pca, figres)
+    loadingscores <- as.data.frame(pca$rotation)
+    loadingscores <- loadingscores[with(loadingscores, order(-PC1)),]
+    save_loading_scores(file.path(results_path, '2.loadingscores_pc1.txt'), head(loadingscores['PC1'],20), figres)
+    loadingscores <- as.data.frame(pca$rotation)
+    loadingscores <- loadingscores[with(loadingscores, order(-PC2)),] 
+    save_loading_scores(file.path(results_path, '2.loadingscores_pc2.txt'), head(loadingscores['PC2'],20), figres)
 
 }
 
@@ -77,9 +90,37 @@ vizualize_pca<-function(plot_file, PCA, class1, class2, figres) {
     miny<-min(PCA[[1]]$PC2)
     maxy<-max(PCA[[1]]$PC2)
     png(plot_file, res = figres)
-    plot(PCA[[1]]$PC1, PCA[[1]]$PC2, frame=FALSE, ylim=c(miny-5, maxy+5), xlim=c(minx-5, maxx+5), pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)) )
+    plot(PCA[[1]]$PC1, PCA[[1]]$PC2, frame=FALSE, ylim=c(miny-5, maxy+5),
+         xlim=c(minx-5, maxx+5), pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)) )
 
-    legend("topright", bty = "n", pch=as.numeric(as.factor(as.numeric(as.factor(class1)))),  legend= levels(as.factor(class1)))
-    legend("bottomright", bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))), legend= c(levels(as.factor(class2))))
+    legend("topright", bty = "n", pch=as.numeric(as.factor(as.numeric(as.factor(class1)))),
+           legend= levels(as.factor(class1)))
+    legend("bottomright", bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
+            legend= c(levels(as.factor(class2))))
     dev.off()
+}
+vizualize_pca1<-function(plot_file, PCA, class1, class2, figres) { 
+    minx<-min(PCA[,1])
+    maxx<-max(PCA[,1])
+    miny<-min(PCA[,2])
+    maxy<-max(PCA[,2])
+    png(plot_file, res = figres)
+    plot(PCA[,1], PCA[,2], frame=FALSE, ylim=c(miny, maxy), xlim=c(minx, maxx),
+         pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)) )
+    legend("topright", inset=c(-1,-0.2), bty = "n", pch=as.numeric(as.factor(as.numeric(as.factor(class1)))),
+           legend= levels(as.factor(class1)))
+    legend("bottomright", bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
+           legend= c(levels(as.factor(class2))))
+    dev.off()
+}
+
+vizualize_scree_plot<-function(plot_file, PCA, figres) {
+    scree.plot<-fviz_eig(PCA, addlabels=TRUE, hjust = -0.3)
+    png(plot_file, res = figres)
+    print(scree.plot)
+    dev.off()
+}
+
+save_loading_scores<-function(write_file, df, figres) { 
+    write.table(df, file=write_file)
 }
