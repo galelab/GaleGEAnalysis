@@ -49,9 +49,6 @@ pvca <- function(exprs, covrts, results_path, figres=100) {
     for (val in cvrts_eff_var) {
         val1 <- lapply(val, tolower)
         test <- grep('id', val1)
-        print (val1)
-        print(length(test))
-        print(test)
         if (length(test) == 1) { 
         } else { 
             cvrts_eff_var_f <- append(cvrts_eff_var_f, val, after = length(cvrts_eff_var_f))
