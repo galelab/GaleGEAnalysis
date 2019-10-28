@@ -16,15 +16,18 @@
 #' @examples
 #' s2_feature_reduction(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
 
-s2_feature_reduction <- function(countfile, targetfile, figres=100) { 
+s2_feature_reduction <- function(countfile, targetfile, figres=100, pcva=TRUE, pca=TRUE, umap=TRUE) { 
     # V.CPM <- readRDS('./s1_norm_raw_counts_results/1.voomobject.rds')
     pdf(NULL)
     files <- loadfiles(count_file=countfile, target_file=targetfile)
     results_path <- generate_folder('s2_feature_reduction_results')
     vizualize_feature_reduction_data(files$counts, files$target$treatment,results_path, figres)
-    pvca(files$counts, files$target, results_path)
-    pca(files$counts, files$target, results_path)
-
+    if (pcva == TRUE) {
+        pvca_fun(files$counts, files$target, results_path)
+    }
+    if (pca == TRUE) {
+        pca_fun(files$counts, files$target, results_path)
+    }
 }
 
 vizualize_feature_reduction_data <- function(data, labels, results_path, figres=100) { 
@@ -40,7 +43,7 @@ vizualize_feature_reduction_data <- function(data, labels, results_path, figres=
     dev.off()
 }
 
-pvca <- function(exprs, covrts, results_path, figres=100) {
+pvca_fun <- function(exprs, covrts, results_path, figres=100) {
     #Principal Component analysis of variation (PVCA)
 
     inpData <- expSetobj(exprs, covrts)
@@ -62,15 +65,25 @@ pvca <- function(exprs, covrts, results_path, figres=100) {
 }
 
 
-pca<-function(exprs, labels, results_path, figres=100) {
+pca_fun<-function(exprs, labels, results_path, figres=100) {
     normcounts <-exprs
     normcounts300<-normcounts[sample(1:nrow(normcounts),300),]
+
     pca <- prcomp(t(normcounts))
+    E <- get_eig(pca)
     cx <- sweep(t(normcounts), 2, colMeans(t(normcounts)), "-")
     sv <- svd(cx)
-    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix.png'), sv$u, labels$Sex, labels$Animal_Outcome, figres)
-    vizualize_pca1(file.path(results_path, '2.pca_vnorm_matrix.png'), pca$x, labels$Sex, labels$Animal_Outcome, figres)    
+
+    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix.png'), sv$u, labels$Sex, labels$Animal_Outcome, figres, E)
+    vizualize_pca1(file.path(results_path, '2.pca_vnorm_matrix.png'), pca$x, labels$Sex, labels$Animal_Outcome, figres, E)    
     vizualize_scree_plot(file.path(results_path, '2.scree_vnorm_matrix.png'), pca, figres)
+
+    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix1.png'), sv$u, labels$Sex, labels$animal.ID, figres, E)
+    vizualize_pca1(file.path(results_path, '2.pca_vnorm_matrix1.png'), pca$x, labels$Sex, labels$animal.ID, figres, E)
+
+    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix2.png'), sv$u, labels$Sex, labels$Time_Point, figres, E)
+    vizualize_pca1(file.path(results_path, '2.pca_vnorm_matrix2.png'), pca$x, labels$Sex, labels$Time_Point, figres, E)
+
     loadingscores <- as.data.frame(pca$rotation)
     loadingscores <- loadingscores[with(loadingscores, order(-PC1)),]
     save_loading_scores(file.path(results_path, '2.loadingscores_pc1.txt'), head(loadingscores['PC1'],20), figres)
@@ -96,17 +109,19 @@ pca<-function(exprs, labels, results_path, figres=100) {
 #     dev.off()
 # }
 
-vizualize_pca1<-function(plot_file, PCA, class1, class2, figres) { 
+vizualize_pca1<-function(plot_file, PCA, class1, class2, figres, E) { 
     minx<-min(PCA[,1])
     maxx<-max(PCA[,1])
     miny<-min(PCA[,2])
     maxy<-max(PCA[,2])
     png(plot_file, res = figres)
+    par(mar = c(5, 4, 2, 4), xpd=TRUE)
     plot(PCA[,1], PCA[,2], frame=FALSE, ylim=c(miny, maxy), xlim=c(minx, maxx),
-         pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)) )
-    legend("topright", inset=c(-1,-0.2), bty = "n", pch=as.numeric(as.factor(as.numeric(as.factor(class1)))),
+         pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)), xlab=paste0('PC1 ',round(E$variance.percent[1],  digits = 2), '%'),
+         ylab=paste0('PC2 ',round(E$variance.percent[2],  digits = 2), '%'  ))
+    legend("topright", inset=c(-0.2,-0.1), bty = "n", pch=as.numeric(as.factor(as.numeric(as.factor(class1)))),
            legend= levels(as.factor(class1)))
-    legend("bottomright", bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
+    legend("bottomright", inset=c(-0.23, 0), bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
            legend= c(levels(as.factor(class2))))
     dev.off()
 }
