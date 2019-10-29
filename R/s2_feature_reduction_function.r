@@ -8,6 +8,7 @@
 #' @param pcva run principal component variance analysis (default set to TRUE)
 #' @param pca run principal component analysis (and singular vector decomposition) (default set to TRUE)
 #' @param UMAP run Uniform Manifold Aproximation Projection (default set to TRUE)
+#' @param base_file_name file name for all figures
 #' @keywords gene expression feature reduction
 #' @export
 #' @import Biobase
@@ -19,36 +20,40 @@
 #' @examples
 #' s2_feature_reduction(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
 
-s2_feature_reduction <- function(countfile, targetfile, target_class=c(2,5), figres=100, pcva=TRUE, pca=TRUE, UMAP=TRUE) { 
+s2_feature_reduction <- function(countfile, targetfile, target_class=c(2,5), figres=100, pcva=TRUE, pca=TRUE, UMAP=TRUE, base_file_name='vnorm.png') { 
     pdf(NULL)
     files <- loadfiles(count_file=countfile, target_file=targetfile)
     results_path <- generate_folder('s2_feature_reduction_results')
-    vizualize_feature_reduction_data(files$counts, files$target$treatment,results_path, figres)
+    
+    vizualize_feature_reduction_data(files$counts, files$target[,-1], results_path, base_file_name, figres)
+    
     if (pcva == TRUE) {
-        pvca_fun(files$counts, files$target, results_path)
+        pvca_fun(files$counts, files$target, results_path, base_file_name, figres)
     }
+    
     if (pca == TRUE) {
-        pca_fun(files$counts, files$target, results_path, target_class)
+        pca_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
     }
+    
     if (UMAP == TRUE) {
-        umap_fun(files$counts, files$target, results_path, target_class)
+        umap_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
     }
 }
 
-vizualize_feature_reduction_data <- function(data, labels, results_path, figres=100) { 
+vizualize_feature_reduction_data <- function(data, labels, results_path, base_file_name, figres=100) { 
     ###MDS (multidimensional scaling) uses log fold changes between genes as distances
     MDS <- plotMDS(data, gene.selection='pairwise', cex= .8)
     minx<-min(MDS$x)
     maxx<-max(MDS$x)
     miny<-min(MDS$y)
     maxy<-max(MDS$y)
-    png(file.path(results_path,  '2.mds_vnorm_matrix.png'), res = figres)
+    png(file.path(results_path,  paste0('2.mds_',base_file_name)), res = figres)
     plot(MDS$x, MDS$y, cex=1, xlim=c(minx-1, maxx+1), ylim=c(miny-1, maxy+1), xlab=paste0(MDS$axislabel,' 1'), ylab=paste0(MDS$axislabel,' 2'), frame = FALSE)
     text(MDS$x, MDS$y, labels, cex=0.6, pos=4)
     dev.off()
 }
 
-pvca_fun <- function(exprs, covrts, results_path, target_class, figres=100) {
+pvca_fun <- function(exprs, covrts, results_path, base_file_name, target_class, figres=100) {
     #Principal Component analysis of variation (PVCA)
 
     inpData <- expSetobj(exprs, covrts)
@@ -64,23 +69,23 @@ pvca_fun <- function(exprs, covrts, results_path, target_class, figres=100) {
     }
     # cvrts_eff_var <- cvrts_eff_var[-1]
     pct_thrsh <- 0.75
-    png(file.path(results_path, '2.pvca_vnorm_matrix.png'), res = figres)
+    png(file.path(results_path, paste0('2.pvca_', base_file_name)), res = figres)
     pvcAnaly(inpData, pct_thrsh, cvrts_eff_var_f)
     dev.off()
 }
 
 
-pca_fun<-function(exprs, labels, results_path, target_class, figres=100) {
-    normcounts <-exprs
+pca_fun<-function(exprs, labels, results_path, base_file_name, target_class, figres=100) {
+    #Run PCA/SVD reduction 
 
-    pca <- prcomp(t(normcounts))
+    pca <- prcomp(t(exprs))
     E <- get_eig(pca)
-    cx <- sweep(t(normcounts), 2, colMeans(t(normcounts)), "-")
+    cx <- sweep(t(exprs), 2, colMeans(t(exprs)), "-")
     sv <- svd(cx)
 
-    vizualize_pca(file.path(results_path, '2.svd_vnorm_matrix.png'), sv$u, labels[,target_class[1]], labels[,target_class[2]], figres, E)
-    vizualize_pca(file.path(results_path, '2.pca_vnorm_matrix.png'), pca$x, labels[,target_class[1]], labels[,target_class[2]], figres, E)    
-    vizualize_scree_plot(file.path(results_path, '2.scree_vnorm_matrix.png'), pca, figres)
+    vizualize_pca(file.path(results_path, paste0('2.svd_',base_file_name)), sv$u, labels[,target_class[1]], labels[,target_class[2]], figres, E)
+    vizualize_pca(file.path(results_path, paste0('2.pca_',base_file_name)), pca$x, labels[,target_class[1]], labels[,target_class[2]], figres, E)    
+    vizualize_scree_plot(file.path(results_path, paste0('2.scree_',base_file_name)), pca, figres)
 
     loadingscores <- as.data.frame(pca$rotation)
     is_pc1_0 <- loadingscores$PC1 > 0
@@ -97,12 +102,14 @@ pca_fun<-function(exprs, labels, results_path, target_class, figres=100) {
 
 }
 
-umap_fun<-function(exprs, labels, results_path, target_class, figres=100) { 
+umap_fun<-function(exprs, labels, results_path, base_file_name, target_class, figres=100) {
+    #Runs default paramaters of umap 
     U <- umap(t(exprs))
-    vizualize_umap(file.path(results_path, '2.umap_reduction.png'), U$layout, labels[,target_class[1]], labels[,target_class[2]], figres)
+    vizualize_umap(file.path(results_path, paste0('2.umap_',base_file_name)), U$layout, labels[,target_class[1]], labels[,target_class[2]], figres)
 }
 
 vizualize_umap<-function(plot_file, U, class1, class2, figres) { 
+    #Vizualize umap reduction
     minx<-min(U[,1])
     maxx<-max(U[,1])
     miny<-min(U[,2])
@@ -130,9 +137,9 @@ vizualize_pca<-function(plot_file, PCA, class1, class2, figres, E) {
     plot(PCA[,1], PCA[,2], frame=FALSE, ylim=c(miny, maxy), xlim=c(minx, maxx),
          pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)), xlab=paste0('PC1 ',round(E$variance.percent[1],  digits = 2), '%'),
          ylab=paste0('PC2 ',round(E$variance.percent[2],  digits = 2), '%'  ))
-    legend("topright", inset=c(-0.25,-0.1), bty = "n", pch=as.numeric(levels(as.factor(as.numeric(as.factor(class1))))),
+    legend("topright", inset=c(-0.35,-0.1), bty = "n", pch=as.numeric(levels(as.factor(as.numeric(as.factor(class1))))),
            legend= levels(as.factor(class1)))
-    legend("bottomright", inset=c(-0.25, 0), bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
+    legend("bottomright", inset=c(-0.37, 0), bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
            legend= c(levels(as.factor(class2))))
     dev.off()
 }
