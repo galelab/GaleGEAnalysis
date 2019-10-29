@@ -4,14 +4,23 @@
 \alias{s2_feature_reduction}
 \title{s2 feature reduction}
 \usage{
-s2_feature_reduction(countfile, targetfile, figres = 100)
+s2_feature_reduction(countfile, targetfile, target_class = c(2, 5),
+  figres = 100, pcva = TRUE, pca = TRUE, UMAP = TRUE)
 }
 \arguments{
 \item{countfile}{raw counts table (generally output by htseq).}
 
 \item{targetfile}{target file.}
 
+\item{target_class}{columns from the target file to label samples on the pca/umap plots (has to be 2)}
+
 \item{figres}{resolution at which to output figures (default is 300).}
+
+\item{pcva}{run principal component variance analysis (default set to TRUE)}
+
+\item{pca}{run principal component analysis (and singular vector decomposition) (default set to TRUE)}
+
+\item{UMAP}{run Uniform Manifold Aproximation Projection (default set to TRUE)}
 }
 \description{
 This function does feature reduction and visualization on normalized voom counts
