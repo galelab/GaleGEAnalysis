@@ -28,6 +28,7 @@ s2_feature_reduction <- function(countfile, targetfile, figres=100, pcva=TRUE, p
     if (pca == TRUE) {
         pca_fun(files$counts, files$target, results_path)
     }
+    umap_fun(files$counts, files$target, results_path)
 }
 
 vizualize_feature_reduction_data <- function(data, labels, results_path, figres=100) { 
@@ -84,6 +85,18 @@ pca_fun<-function(exprs, labels, results_path, figres=100) {
     vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix2.png'), sv$u, labels$Sex, labels$Time_Point, figres, E)
     vizualize_pca1(file.path(results_path, '2.pca_vnorm_matrix2.png'), pca$x, labels$Sex, labels$Time_Point, figres, E)
 
+    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix3.png'), sv$u, labels$Study_Group, labels$treatment, figres, E)
+    vizualize_pca1(file.path(results_path, '2.pca_vnorm_matrix3.png'), pca$x, labels$Study_Group, labels$treatment, figres, E)
+
+    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix4.png'), sv$u, labels$Study_Group, labels$Animal_Outcome, figres, E)
+    vizualize_pca1(file.path(results_path, '2.pca_vnorm_matrix4.png'), pca$x, labels$Study_Group, labels$Animal_Outcome, figres, E)
+
+    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix5.png'), sv$u, labels$animal.ID, labels$Animal_Outcome, figres, E)
+    vizualize_pca1(file.path(results_path, '2.pca_vnorm_matrix5.png'), pca$x, labels$animal.ID, labels$Animal_Outcome, figres, E)
+
+    vizualize_pca1(file.path(results_path, '2.svd_vnorm_matrix6.png'), sv$u, labels$Number_Challenges, labels$Animal_Outcome, figres, E)
+    vizualize_pca1(file.path(results_path, '2.pca_vnorm_matrix6.png'), pca$x, labels$Number_Challenges, labels$Animal_Outcome, figres, E)
+
     loadingscores <- as.data.frame(pca$rotation)
     loadingscores <- loadingscores[with(loadingscores, order(-PC1)),]
     save_loading_scores(file.path(results_path, '2.loadingscores_pc1.txt'), head(loadingscores['PC1'],20), figres)
@@ -93,21 +106,34 @@ pca_fun<-function(exprs, labels, results_path, figres=100) {
 
 }
 
-# vizualize_pca<-function(plot_file, PCA, class1, class2, figres) { 
-#     minx<-min(PCA[[1]]$PC1)
-#     maxx<-max(PCA[[1]]$PC1)
-#     miny<-min(PCA[[1]]$PC2)
-#     maxy<-max(PCA[[1]]$PC2)
-#     png(plot_file, res = figres)
-#     plot(PCA[[1]]$PC1, PCA[[1]]$PC2, frame=FALSE, ylim=c(miny-5, maxy+5),
-#          xlim=c(minx-5, maxx+5), pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)) )
+umap_fun<-function(exprs, labels, results_path, figres=100) { 
+    U <- umap(t(exprs))
+    vizualize_umap(file.path(results_path, '2.umap_reduction.png'), U$layout, labels$Sex, labels$Animal_Outcome, figres)
+    vizualize_umap(file.path(results_path, '2.umap_reduction1.png'), U$layout, labels$Sex, labels$animal.ID, figres)
+    vizualize_umap(file.path(results_path, '2.umap_reduction2.png'), U$layout, labels$Sex, labels$Time_Point, figres)
+    vizualize_umap(file.path(results_path, '2.umap_reduction3.png'), U$layout, labels$Study_Group, labels$treatment, figres)
+    vizualize_umap(file.path(results_path, '2.umap_reduction4.png'), U$layout, labels$Study_Group, labels$Animal_Outcome, figres)
+    vizualize_umap(file.path(results_path, '2.umap_reduction5.png'), U$layout, labels$animal.ID, labels$Animal_Outcome, figres)
+    vizualize_umap(file.path(results_path, '2.umap_reduction6.png'), U$layout, labels$Number_Challenges, labels$Animal_Outcome, figres)
 
-#     legend("topright", bty = "n", pch=as.numeric(as.factor(as.numeric(as.factor(class1)))),
-#            legend= levels(as.factor(class1)))
-#     legend("bottomright", bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
-#             legend= c(levels(as.factor(class2))))
-#     dev.off()
-# }
+}
+
+vizualize_umap<-function(plot_file, U, class1, class2, figres) { 
+    minx<-min(U[,1])
+    maxx<-max(U[,1])
+    miny<-min(U[,2])
+    maxy<-max(U[,2])
+    png(plot_file, res = figres)
+    par(mar = c(5, 4, 2, 4), xpd=TRUE)
+    plot(U[,1], U[,2], frame=FALSE, ylim=c(miny, maxy), xlim=c(minx, maxx),  pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)), 
+    xlab='Dim 1', ylab='Dim 2')
+    legend("topright", inset=c(-0.25,-0.1), bty = "n", pch=as.numeric(levels(as.factor(as.numeric(as.factor(class1))))),
+           legend= levels(as.factor(class1)))
+    legend("bottomright", inset=c(-0.3, 0), bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
+           legend= c(levels(as.factor(class2))))
+    dev.off()
+}
+
 
 vizualize_pca1<-function(plot_file, PCA, class1, class2, figres, E) { 
     minx<-min(PCA[,1])
@@ -115,13 +141,13 @@ vizualize_pca1<-function(plot_file, PCA, class1, class2, figres, E) {
     miny<-min(PCA[,2])
     maxy<-max(PCA[,2])
     png(plot_file, res = figres)
-    par(mar = c(5, 4, 2, 4), xpd=TRUE)
+    par(mar = c(5, 4, 2, 5.5), xpd=TRUE)
     plot(PCA[,1], PCA[,2], frame=FALSE, ylim=c(miny, maxy), xlim=c(minx, maxx),
          pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)), xlab=paste0('PC1 ',round(E$variance.percent[1],  digits = 2), '%'),
          ylab=paste0('PC2 ',round(E$variance.percent[2],  digits = 2), '%'  ))
-    legend("topright", inset=c(-0.2,-0.1), bty = "n", pch=as.numeric(as.factor(as.numeric(as.factor(class1)))),
+    legend("topright", inset=c(-0.25,-0.1), bty = "n", pch=as.numeric(levels(as.factor(as.numeric(as.factor(class1))))),
            legend= levels(as.factor(class1)))
-    legend("bottomright", inset=c(-0.23, 0), bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
+    legend("bottomright", inset=c(-0.4, 0), bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
            legend= c(levels(as.factor(class2))))
     dev.off()
 }
