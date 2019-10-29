@@ -18,7 +18,7 @@
 #' @import factoextra
 #' @import umap
 #' @examples
-#' s2_feature_reduction(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
+#' s2_feature_reduction(count_file.txt, target_file.csv, target_class=c(2,5), base_file_name='vnorm.png')
 
 s2_feature_reduction <- function(countfile, targetfile, target_class=c(2,5), figres=100, pcva=TRUE, pca=TRUE, UMAP=TRUE, base_file_name='vnorm.png') { 
     pdf(NULL)
