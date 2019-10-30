@@ -29,7 +29,7 @@ s2_feature_reduction(countfile, targetfile, target_class = c(2, 5),
 This function does feature reduction and visualization on normalized voom counts
 }
 \examples{
-s2_feature_reduction(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
+s2_feature_reduction(count_file.txt, target_file.csv, target_class=c(2,5), base_file_name='vnorm.png')
 }
 \keyword{expression}
 \keyword{feature}

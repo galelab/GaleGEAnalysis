@@ -4,15 +4,17 @@
 \alias{s1_normalize_raw_counts}
 \title{s1 normalize raw counts function following Gale lab protocol}
 \usage{
-s1_normalize_raw_counts(countfile, targetfile, visualize_data = TRUE,
-  FilterGenesWithCounts = 0, figres = 100)
+s1_normalize_raw_counts(countfile, targetfile, target_class = c(9, 2),
+  visualize_data = TRUE, filter_genes_below_counts = 0, figres = 100)
 }
 \arguments{
 \item{countfile}{raw counts table (generally output by htseq).}
 
 \item{targetfile}{target file.}
 
-\item{FilterGenesWithCounts}{filter out genes with counts below a certain value, (default set to 0).}
+\item{target_class}{columns from the target file to build design matrix for future DE analysis}
+
+\item{filter_genes_below_counts}{filter out genes with counts below a certain value, (default set to 0).}
 
 \item{figres}{resolution at which to output figures (default is 300).}
 

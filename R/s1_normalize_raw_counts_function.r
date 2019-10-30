@@ -3,9 +3,10 @@
 #' This function allows the normalization of raw counts following a general protocol developed by previous members of the gale lab
 #' @param countfile raw counts table (generally output by htseq).
 #' @param targetfile target file.
+#' @param target_class columns from the target file to build design matrix for future DE analysis 
 #' @param vizualize_data whether or not to generate figures (default set to true).
-#' @param  FilterGenesWithCounts filter out genes with counts below a certain value, (default set to 0).
-#' @param  figres resolution at which to output figures (default is 300).
+#' @param filter_genes_below_counts filter out genes with counts below a certain value, (default set to 0).
+#' @param figres resolution at which to output figures (default is 300).
 #' @keywords gene expression normalization
 #' @export
 #' @import limma
@@ -13,15 +14,15 @@
 #' @examples
 #' normalize_raw_counts(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
 
-s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE, FilterGenesWithCounts=0, figres=100) { 
+s1_normalize_raw_counts <- function(countfile, targetfile, target_class=c(9,2), visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
     ###READ IN FILES
     print("STATUS: loading files")
-    files <- loadfiles(count_file=countfile, target_file=targetfile)
-    DE_DF <- DGEList(counts = files$counts)
+    files            <- loadfiles(count_file=countfile, target_file=targetfile)
+    DE_DF            <- DGEList(counts = files$counts)
 
     #FILTER OUT GENES WITH LOW COUNTS
     print("STATUS: filtering out genes with low counts")
-    DE_DF_fl = DE_DF[apply(FUN=max, X=DE_DF, MARGIN=1)>FilterGenesWithCounts,]
+    DE_DF_fl         <- DE_DF[apply(FUN=max, X=DE_DF, MARGIN=1)>filter_genes_below_counts,]
 
     ###get biological coefficients of variation
     print("STATUS: getting biological coefficient of variation (takes time...)")
@@ -29,7 +30,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE
     
     ###NORMALIZE VIA TMM
     print("STATUS: getting normalizing factors (method TMM)")
-    DE_DF_fl_norm <- calcNormFactors(DE_DF_fl)
+    DE_DF_fl_norm    <- calcNormFactors(DE_DF_fl)
 
     ###SET UP MODEL DESIGN
     print("STATUS: setting up model design")
@@ -40,9 +41,10 @@ s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE
         print (paste0("Length of column names in count/normalized matrix:", length(colnames(DE_DF))))
     }
     else {
-        Treatment <- factor(files$targets$treatment, levels=unique(files$targets$treatment))
-        design <- model.matrix(~0 + Treatment)
-        colnames(design) <- levels(Treatment)
+        CLASS1 <- factor(files$targets[,target_class[1]], levels=unique(files$targets[,target_class[1]]))
+        CLASS2 <- factor(files$targets[,target_class[2]], levels=unique(files$targets[,target_class[2]]))
+        design <- model.matrix(~0 + CLASS1+CLASS2)
+        # colnames(design) <- levels(CLASS1)
         results_path <- generate_folder('s1_norm_raw_counts_results')
         
         ###RUN VOOM
@@ -59,13 +61,12 @@ s1_normalize_raw_counts <- function(countfile, targetfile, visualize_data = TRUE
 
         if (visualize_data == TRUE) { 
             print("STATUS: generating figures")
-            vizualize_counts(files$counts, V.CPM$E, files$targets$treatment, count_matrix_flv, figres=figres, results_path=results_path)
+            vizualize_counts(files$counts, V.CPM$E, files$targets, count_matrix_flv, figres=figres, results_path=results_path)
         }
 
+        # results_norm <- list("norm_exprs_voom" = V.CPM, "design" = design)
 
-        results_norm <- list("norm_exprs_voom" = V.CPM, "design" = design)
-
-        return (results_norm)
+        # return (results_norm)
     }
 }
 
@@ -77,7 +78,7 @@ vizualize_counts <- function(countsmatrix, norm_exprs, labels, count_matrix_flv,
     # par(mar=c(1,1,1,1))
     minvalue <-min(log2(countsmatrix+1))
     maxvalue <- max(log2(countsmatrix+1))
-    boxplot(log2(countsmatrix+1), labels = labels, ylim=c(minvalue-5, maxvalue+5), ylab = "log2 Expression", main = "Raw count matrix", cex.axis=.6, las=2, frame=FALSE)
+    boxplot(log2(countsmatrix+1), labels = labels$Name, ylim=c(minvalue-5, maxvalue+5), ylab = "log2 Expression", main = "Raw count matrix", cex.axis=.6, las=2, frame=FALSE)
     dev.off()
 
     print('STATUS: generating boxplot of normalized voom counts')
@@ -85,27 +86,27 @@ vizualize_counts <- function(countsmatrix, norm_exprs, labels, count_matrix_flv,
     # par(mar=c(1,1,1,1))
     minvalue <-min(norm_exprs)
     maxvalue <- max(norm_exprs)
-    boxplot(norm_exprs, labels = labels, ylim=c(minvalue-1, maxvalue+1), ylab = "log2 Expression", main = "Raw count matrix", cex.axis=.6, las=2, frame=FALSE)
+    boxplot(norm_exprs, labels = labels$Name, ylim=c(minvalue-1, maxvalue+1), ylab = "log2 Expression", main = "Raw count matrix", cex.axis=.6, las=2, frame=FALSE)
     dev.off()
 
 
     print('STATUS: generating density plot of all sample counts')
     png(file.path(results_path, "1.densities_raw_count_matrix.png"), res=figres)
     # par(mar=c(1,1,1,1))
-    if (length(labels) > 10) {
+    if (length(labels$Name) > 10) {
         plotDensities(log2(countsmatrix+1), legend = FALSE)    
     } else {
-        plotDensities(log2(countsmatrix+1), legend = "topright", levels(labels))
+        plotDensities(log2(countsmatrix+1), legend = "topright", levels(labels$Name))
     }
     dev.off()
 
     print('STATUS: generating density plot of normalized voom counts')
     png(file.path(results_path, "1.densities_vnorm_matrix.png"), res=figres)
-    # par(mar=c(1,1,1,1))
-    if (length(labels) > 10) {
+    par(mar=c(1,1,1,1),  xpd=TRUE)
+    if (length(labels$Name) > 10) {
         plotDensities(norm_exprs, legend = FALSE)    
     } else {
-        plotDensities(norm_exprs, legend = "topright", levels(labels))
+        plotDensities(norm_exprs, legend = "topright", inset=c(-0.2,0), levels(labels$Name))
     }
     dev.off()
 
