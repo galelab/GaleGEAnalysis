@@ -34,8 +34,7 @@ s2_feature_reduction <- function(countfile, targetfile, target_class=c(2,5), fig
     }
     
     if (pca == TRUE) {
-    print ('STATUS: Running PCA feature reduction')
-
+        print ('STATUS: Running PCA feature reduction')
         pca_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
     }
     
