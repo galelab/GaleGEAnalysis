@@ -50,7 +50,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile, target_class=c(10,2),
         ###RUN VOOM
         print("STATUS: running voom")
         png(file.path(results_path,'1.voomplot.png'), res=figres)
-        par(mar=c(1,1,1,1))
+        # par(mar=c(1,1,1,1))
         V.CPM = voom(DE_DF_fl_norm, design=design, plot=T, span=0.1)
         dev.off()
 
