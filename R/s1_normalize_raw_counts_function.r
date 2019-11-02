@@ -74,41 +74,19 @@ s1_normalize_raw_counts <- function(countfile, targetfile, target_class=c(9,2), 
 vizualize_counts <- function(countsmatrix, norm_exprs, labels, count_matrix_flv, figres=100, results_path) {
     #Generate figures for counts
     print('STATUS: generating log2 boxplot of counts')
-    png(file.path(results_path, "1.boxplot_raw_count_matrix.png"), res=figres)
-    # par(mar=c(1,1,1,1))
-    minvalue <-min(log2(countsmatrix+1))
-    maxvalue <- max(log2(countsmatrix+1))
-    boxplot(log2(countsmatrix+1), labels = labels$Name, ylim=c(minvalue-5, maxvalue+5), ylab = "log2 Expression", main = "Raw count matrix", cex.axis=.6, las=2, frame=FALSE)
-    dev.off()
+    generate_boxplots(log2(countsmatrix+1), labels[,1], file.path(results_path, "1.boxplot_raw_count_matrix.png"), figres, maintitle='Raw count matrix', ylabtitle='log2 Expression')
 
     print('STATUS: generating boxplot of normalized voom counts')
-    png(file.path(results_path, "1.boxplot_vnorm_matrix.png"), res=figres)
-    # par(mar=c(1,1,1,1))
-    minvalue <-min(norm_exprs)
-    maxvalue <- max(norm_exprs)
-    boxplot(norm_exprs, labels = labels$Name, ylim=c(minvalue-1, maxvalue+1), ylab = "log2 Expression", main = "Raw count matrix", cex.axis=.6, las=2, frame=FALSE)
-    dev.off()
+    generate_boxplots(norm_exprs, labels[,1], file.path(results_path, "1.boxplot_vnorm_matrix.png"), figres, maintitle='Normalized count matrix', ylabtitle='voom normalized expression')
 
+    print('STATUS: generating density plot of all log counts')
+    generate_density_plot(log2(countsmatrix+1), labels[,1], file.path(results_path, "1.densities_raw_log_counts.png"), figres)
 
-    print('STATUS: generating density plot of all sample counts')
-    png(file.path(results_path, "1.densities_raw_count_matrix.png"), res=figres)
-    # par(mar=c(1,1,1,1))
-    if (length(labels$Name) > 10) {
-        plotDensities(log2(countsmatrix+1), legend = FALSE)    
-    } else {
-        plotDensities(log2(countsmatrix+1), legend = "topright", levels(labels$Name))
-    }
-    dev.off()
+    print('STATUS: generating density plot of raw counts')
+    generate_density_plot(countsmatrix, labels[,1], file.path(results_path, "1.densities_raw_counts.png"), figres)
 
     print('STATUS: generating density plot of normalized voom counts')
-    png(file.path(results_path, "1.densities_vnorm_matrix.png"), res=figres)
-    par(mar=c(1,1,1,1),  xpd=TRUE)
-    if (length(labels$Name) > 10) {
-        plotDensities(norm_exprs, legend = FALSE)    
-    } else {
-        plotDensities(norm_exprs, legend = "topright", inset=c(-0.2,0), levels(labels$Name))
-    }
-    dev.off()
+    generate_density_plot(norm_exprs, labels[,1], file.path(results_path, "1.densities_vnorm_matrix.png"), figres)
 
 
     print('STATUS: generating biological varation vs abundance')
@@ -127,6 +105,25 @@ biological_coefficents_variation <- function(count_matrix_fl) {
     return(count_matrix_flv)
 }
 
+generate_density_plot <- function(data, labels, filename, figres){ 
+    png(filename, res=figres)
+    par( xpd=TRUE)
+    if (length(labels) > 10) {
+        plotDensities(data, legend = FALSE)    
+    } else {
+        plotDensities(data, legend = "topright", inset=c(-0.2,0), levels(labels))
+    }
+    dev.off()
+}
 
 
 
+generate_boxplots <- function(data, labels, filename, figres, maintitle, ylabtitle){ 
+    png(filename, res=figres)
+    # par(mar=c(1,1,1,1))
+    minvalue <-min(data)
+    maxvalue <- max(data)
+    boxplot(data, labels = labels, ylim=c(minvalue-1, maxvalue+1), ylab = ylabtitle, main = maintitle, cex.axis=.6, las=2, frame=FALSE)
+    dev.off()
+
+}    
