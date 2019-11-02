@@ -14,7 +14,7 @@
 #' @examples
 #' normalize_raw_counts(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
 
-s1_normalize_raw_counts <- function(countfile, targetfile, target_class=c(9,2), visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
+s1_normalize_raw_counts <- function(countfile, targetfile, target_class=c(10,2), visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
     ###READ IN FILES
     print("STATUS: loading files")
     files            <- loadfiles(count_file=countfile, target_file=targetfile)
