@@ -26,7 +26,7 @@ s2_feature_reduction <- function(countfile, targetfile, target_class=c(2,5), fig
     results_path <- generate_folder('s2_feature_reduction_results')
     
     print ('STATUS: Running MDS feature reduction')
-    vizualize_feature_reduction_data(files$counts, files$target[,-1], results_path, base_file_name, figres)
+    vizualize_feature_reduction_data(files$counts, files$targets[,ncol(files$targets)], results_path, base_file_name, figres)
     
     if (pcva == TRUE) {
         print ('STATUS: Running principal component variance analysis')
@@ -62,16 +62,16 @@ pvca_fun <- function(exprs, covrts, results_path, base_file_name, target_class, 
 
     inpData <- expSetobj(exprs, covrts)
     cvrts_eff_var <- colnames(covrts) ## Set the covariates whose effect size on the data needs to be calculated
-    cvrts_eff_var_f <- c()
-    for (val in cvrts_eff_var) {
-        val1 <- lapply(val, tolower)
-        test <- grep('id', val1)
-        if (length(test) == 1) { 
-        } else { 
-            cvrts_eff_var_f <- append(cvrts_eff_var_f, val, after = length(cvrts_eff_var_f))
-        }
-    }
-    # cvrts_eff_var <- cvrts_eff_var[-1]
+ 
+    # for (val in cvrts_eff_var) {
+    #     val1 <- lapply(val, tolower)
+    #     test <- grep('id', val1)
+    #     if (length(test) == 1) { 
+    #     } else { 
+    #         cvrts_eff_var_f <- append(cvrts_eff_var_f, val, after = length(cvrts_eff_var_f))
+    #     }
+    # }
+    cvrts_eff_var <- cvrts_eff_var[-1]
     pct_thrsh <- 0.75
     png(file.path(results_path, paste0('2.pvca_', base_file_name)), res = figres)
     pvcAnaly(inpData, pct_thrsh, cvrts_eff_var_f)
