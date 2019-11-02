@@ -25,17 +25,22 @@ s2_feature_reduction <- function(countfile, targetfile, target_class=c(2,5), fig
     files <- loadfiles(count_file=countfile, target_file=targetfile)
     results_path <- generate_folder('s2_feature_reduction_results')
     
+    print ('STATUS: Running MDS feature reduction')
     vizualize_feature_reduction_data(files$counts, files$target[,-1], results_path, base_file_name, figres)
     
     if (pcva == TRUE) {
+        print ('STATUS: Running principal component variance analysis')
         pvca_fun(files$counts, files$target, results_path, base_file_name, figres)
     }
     
     if (pca == TRUE) {
+    print ('STATUS: Running PCA feature reduction')
+
         pca_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
     }
     
     if (UMAP == TRUE) {
+        print ('STATUS: Running UMAP feature reduction')
         umap_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
     }
 }
