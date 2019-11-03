@@ -11,10 +11,11 @@
 #' @export
 #' @import limma
 #' @import edgeR
+#' @import edgeR
 #' @examples
 #' normalize_raw_counts(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
 
-s1_normalize_raw_counts <- function(countfile, targetfile, target_class=c(10,2), visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
+s1_normalize_raw_counts <- function(countfile, targetfile, target_class=10, blocking_column=FALSE, visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
     ###READ IN FILES
     print("STATUS: loading files")
     files            <- loadfiles(count_file=countfile, target_file=targetfile)
@@ -41,35 +42,50 @@ s1_normalize_raw_counts <- function(countfile, targetfile, target_class=c(10,2),
         print (paste0("Length of column names in count/normalized matrix:", length(colnames(DE_DF))))
     }
     else {
-        CLASS1       <- factor(files$targets[,target_class[1]], levels=unique(files$targets[,target_class[1]]))
-        CLASS2       <- factor(files$targets[,target_class[2]], levels=unique(files$targets[,target_class[2]]))
-        design       <- model.matrix(~0 + CLASS1)
-
-        # colnames(design) <- levels(CLASS1)
         results_path <- generate_folder('s1_norm_raw_counts_results')
-        corfit       <- duplicateCorrelation(DE_DF_fl_norm$counts,design,block=CLASS2)
-    
-        ###RUN VOOM
-        print("STATUS: running voom")
-        png(file.path(results_path,'1.voomplot.png'), res=figres)
-        # par(mar=c(1,1,1,1))
-        V.CPM        <- voomWithQualityWeights(DE_DF_fl_norm, design=design, plot=T, span=0.1)
-        dev.off()
+        unlink('./s1_norm_raw_counts_results/*')
+        factors<-list()
+        # for (i in target_class) {
+        F           <- factor(files$targets[,target_class], levels=unique(files$targets[,target_class]))
+            # factors <- list.append(factors, i = F)
+        # }
+        design       <- model.matrix(~0 + F)
 
-        ###save normalized counts and design variable used for linear modeling later
-        write.table(data.frame(V.CPM$E), sep='\t', col.names=NA, file=file.path(results_path,"1.norm_matrix.txt"))
-        saveRDS(V.CPM, file.path(results_path, "1.voomobject.rds"))
-        saveRDS(corfit, file.path(results_path, "1.corfit.rds"))
-        saveRDS(design, file=file.path(results_path, "1.designobject.rds"))
+        if (is.fullrank(design) == TRUE & is.null(nonEstimable(design))) { 
+            # colnames(design) <- levels(CLASS1)
+            if (blocking_column != FALSE) {
+                BLOCKID  <- factor(files$targets[,blocking_column], levels=unique(files$targets[,blocking_column]))
+                corfit   <- duplicateCorrelation(DE_DF_fl_norm$counts,design,block=BLOCKID)
+            }
+            ###RUN VOOM
+            print("STATUS: running voom")
+            png(file.path(results_path,'1.voomplot.png'), res=figres)
+            # par(mar=c(1,1,1,1))
+            V.CPM        <- voomWithQualityWeights(DE_DF_fl_norm, design=design, plot=T, span=0.1)
+            dev.off()
 
-        if (visualize_data == TRUE) { 
-            print("STATUS: generating figures")
-            vizualize_counts(files$counts, V.CPM$E, files$targets, count_matrix_flv, figres=figres, results_path=results_path)
+            ###save normalized counts and design variable used for linear modeling later
+            write.table(data.frame(V.CPM$E), sep='\t', col.names=NA, file=file.path(results_path,"1.norm_matrix.txt"))
+            saveRDS(V.CPM, file.path(results_path, "1.voomobject.rds"))
+
+            if (blocking_column != FALSE) {
+                saveRDS(corfit, file.path(results_path, "1.corfit.rds"))
+            }
+            saveRDS(design, file=file.path(results_path, "1.designobject.rds"))
+
+            if (visualize_data == TRUE) { 
+                print("STATUS: generating figures")
+                vizualize_counts(files$counts, V.CPM$E, files$targets, count_matrix_flv, figres=figres, results_path=results_path)
+            }
+
+            # results_norm <- list("norm_exprs_voom" = V.CPM, "design" = design)
+
+            # return (results_norm)
+        } else { 
+            print ('WARNING: error with design matrix... rethink how it is being set up')
+
         }
 
-        # results_norm <- list("norm_exprs_voom" = V.CPM, "design" = design)
-
-        # return (results_norm)
     }
 }
 
