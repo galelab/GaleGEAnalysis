@@ -41,22 +41,25 @@ s1_normalize_raw_counts <- function(countfile, targetfile, target_class=c(10,2),
         print (paste0("Length of column names in count/normalized matrix:", length(colnames(DE_DF))))
     }
     else {
-        CLASS1 <- factor(files$targets[,target_class[1]], levels=unique(files$targets[,target_class[1]]))
-        CLASS2 <- factor(files$targets[,target_class[2]], levels=unique(files$targets[,target_class[2]]))
-        design <- model.matrix(~0 + CLASS1+CLASS2)
+        CLASS1       <- factor(files$targets[,target_class[1]], levels=unique(files$targets[,target_class[1]]))
+        CLASS2       <- factor(files$targets[,target_class[2]], levels=unique(files$targets[,target_class[2]]))
+        design       <- model.matrix(~0 + CLASS1)
+
         # colnames(design) <- levels(CLASS1)
         results_path <- generate_folder('s1_norm_raw_counts_results')
-        
+        corfit       <- duplicateCorrelation(DE_DF_fl_norm$counts,design,block=CLASS2)
+    
         ###RUN VOOM
         print("STATUS: running voom")
         png(file.path(results_path,'1.voomplot.png'), res=figres)
         # par(mar=c(1,1,1,1))
-        V.CPM = voom(DE_DF_fl_norm, design=design, plot=T, span=0.1)
+        V.CPM        <- voomWithQualityWeights(DE_DF_fl_norm, design=design, plot=T, span=0.1)
         dev.off()
 
         ###save normalized counts and design variable used for linear modeling later
         write.table(data.frame(V.CPM$E), sep='\t', col.names=NA, file=file.path(results_path,"1.norm_matrix.txt"))
         saveRDS(V.CPM, file.path(results_path, "1.voomobject.rds"))
+        saveRDS(corfit, file.path(results_path, "1.corfit.rds"))
         saveRDS(design, file=file.path(results_path, "1.designobject.rds"))
 
         if (visualize_data == TRUE) { 
