@@ -4,8 +4,9 @@
 \alias{s1_normalize_raw_counts}
 \title{s1 normalize raw counts function following Gale lab protocol}
 \usage{
-s1_normalize_raw_counts(countfile, targetfile, target_class = c(9, 2),
-  visualize_data = TRUE, filter_genes_below_counts = 0, figres = 100)
+s1_normalize_raw_counts(countfile, targetfile, target_class = 10,
+  blocking_column = FALSE, visualize_data = TRUE,
+  filter_genes_below_counts = 0, figres = 100)
 }
 \arguments{
 \item{countfile}{raw counts table (generally output by htseq).}
