@@ -27,20 +27,23 @@ s2_feature_reduction <- function(countfile, targetfile, target_class=c(2,5), fig
     
     print ('STATUS: Running MDS feature reduction')
     vizualize_feature_reduction_data(files$counts, files$targets[,ncol(files$targets)], results_path, base_file_name, figres)
-    
-    if (pcva == TRUE) {
-        print ('STATUS: Running principal component variance analysis')
-        pvca_fun(files$counts, files$target, results_path, base_file_name, figres)
-    }
-    
-    if (pca == TRUE) {
-        print ('STATUS: Running PCA feature reduction')
-        pca_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
-    }
-    
-    if (UMAP == TRUE) {
-        print ('STATUS: Running UMAP feature reduction')
-        umap_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
+    if (all.equal(rownames(files$targets), colnames(files$counts)) != TRUE) { 
+        print ('WARNING: order of samples in target and count file is not the same, this needs fixing before code can proceed')
+    } else {
+        if (pcva == TRUE) {
+            print ('STATUS: Running principal component variance analysis')
+            pvca_fun(files$counts, files$target, results_path, base_file_name, figres)
+        }
+        
+        if (pca == TRUE) {
+            print ('STATUS: Running PCA feature reduction')
+            pca_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
+        }
+        
+        if (UMAP == TRUE) {
+            print ('STATUS: Running UMAP feature reduction')
+            umap_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
+        }
     }
 }
 
