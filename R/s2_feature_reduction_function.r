@@ -17,10 +17,11 @@
 #' @import stats
 #' @import factoextra
 #' @import umap
+#' @import Rtsne
 #' @examples
 #' s2_feature_reduction(count_file.txt, target_file.csv, target_class=c(2,5), base_file_name='vnorm.png')
 
-s2_feature_reduction <- function(countfile, targetfile, target_class=c(2,5), figres=100, pcva=TRUE, pca=TRUE, UMAP=TRUE, base_file_name='vnorm.png') { 
+s2_feature_reduction <- function(countfile, targetfile, target_class=c(2,5), figres=100, pcva=TRUE, pca=TRUE, UMAP=TRUE, tsne=TRUE, base_file_name='vnorm.png') { 
     pdf(NULL)
     files <- loadfiles(count_file=countfile, target_file=targetfile)
     results_path <- generate_folder('s2_feature_reduction_results')
@@ -43,6 +44,10 @@ s2_feature_reduction <- function(countfile, targetfile, target_class=c(2,5), fig
         if (UMAP == TRUE) {
             print ('STATUS: Running UMAP feature reduction')
             umap_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
+        }
+        if (tsne == TRUE) {
+           print ('STATUS: Running tSNE feature reduction')
+           tsne_fun(files$counts, files$target, results_path, base_file_name, target_class, figres)
         }
     }
 }
@@ -77,7 +82,7 @@ pvca_fun <- function(exprs, covrts, results_path, base_file_name, target_class, 
     cvrts_eff_var <- cvrts_eff_var[-1]
     pct_thrsh <- 0.75
     png(file.path(results_path, paste0('2.pvca_', base_file_name)), res = figres)
-    pvcAnaly(inpData, pct_thrsh, cvrts_eff_var_f)
+    pvcAnaly(inpData, pct_thrsh, cvrts_eff_var)
     dev.off()
 }
 
@@ -162,4 +167,27 @@ vizualize_scree_plot<-function(plot_file, PCA, figres) {
 save_loading_scores<-function(write_file, df, figres) { 
     #Save list of genes that have a positive effect on variation of principle component 1 and 2 sorted from most influential 
     write.table(df, file=write_file)
+}
+
+tsne_fun<-function(exprs, labels, results_path, base_file_name, target_class, figres=100) {
+    #Runs default paramaters of umap 
+    T <- Rtsne(t(exprs), perplexity=1)
+    vizualize_tSNE(file.path(results_path, paste0('2.tsne_',base_file_name)), T$Y, labels[,target_class[1]], labels[,target_class[2]], figres)
+}
+
+vizualize_tSNE<-function(plot_file, U, class1, class2, figres) { 
+    #Vizualize umap reduction
+    minx<-min(U[,1])
+    maxx<-max(U[,1])
+    miny<-min(U[,2])
+    maxy<-max(U[,2])
+    png(plot_file, res = figres)
+    par(mar = c(5, 4, 2, 4), xpd=TRUE)
+    plot(U[,1], U[,2], frame=FALSE, ylim=c(miny-1, maxy+1), xlim=c(minx-1, maxx+1),  pch=as.numeric(as.factor(class1)), col=as.numeric(as.factor(class2)), 
+    xlab='Dim 1', ylab='Dim 2')
+    legend("topright", inset=c(-0.25,-0.1), bty = "n", pch=as.numeric(levels(as.factor(as.numeric(as.factor(class1))))),
+           legend= levels(as.factor(class1)))
+    legend("bottomright", inset=c(-0.25, 0), bty = "n", pch='-', col=levels(as.factor(as.numeric(as.factor(class2)))),
+           legend= c(levels(as.factor(class2))))
+    dev.off()
 }
