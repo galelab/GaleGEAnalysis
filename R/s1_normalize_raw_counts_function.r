@@ -23,7 +23,10 @@ s1_normalize_raw_counts <- function(countfile, targetfile, target_class=10, bloc
 
     #FILTER OUT GENES WITH LOW COUNTS
     print("STATUS: filtering out genes with low counts")
-    DE_DF_fl         <- DE_DF[apply(FUN=max, X=DE_DF, MARGIN=1)>filter_genes_below_counts,]
+    isexpr <- A > filter_genes_below_counts
+    A <- rowSums(DE_DF$counts)
+    y <- y[isexpr,]
+    DE_DF_fl <- calcNormFactors(y)
 
     ###get biological coefficients of variation
     print("STATUS: getting biological coefficient of variation (takes time...)")
