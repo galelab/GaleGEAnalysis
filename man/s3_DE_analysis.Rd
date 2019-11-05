@@ -4,7 +4,9 @@
 \alias{s3_DE_analysis}
 \title{s3 differential gene analysis}
 \usage{
-s3_DE_analysis()
+s3_DE_analysis(countfile, targetfile, target_class = 10,
+  blocking_column = FALSE, matrixfile = FALSE, p_value = 0.05,
+  log_fold_change = 1.5)
 }
 \description{
 This function runs differential gene analysis (linear modeling on normalized counts)
