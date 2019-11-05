@@ -46,10 +46,10 @@ s1_normalize_raw_counts <- function(countfile, targetfile, target_class=10, bloc
         unlink('./s1_norm_raw_counts_results/*')
         factors<-list()
         # for (i in target_class) {
-        F           <- factor(files$targets[,target_class], levels=unique(files$targets[,target_class]))
+        treatment    <- factor(files$targets[,target_class], levels=unique(files$targets[,target_class]))
             # factors <- list.append(factors, i = F)
         # }
-        design       <- model.matrix(~0 + F)
+        design       <- model.matrix(~0 + treatment)
 
         if (is.fullrank(design) == TRUE & is.null(nonEstimable(design))) { 
             # colnames(design) <- levels(CLASS1)
