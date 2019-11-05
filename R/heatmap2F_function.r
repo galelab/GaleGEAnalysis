@@ -1,3 +1,15 @@
+#' heatmap2.F.R 
+#'
+#' This function runs differential gene analysis (linear modeling on normalized counts)
+#' 
+#' @keywords heatmap
+#' @export
+#' @import gplots
+#' @import dynamicTreeCut
+#' @import WGCNA
+#' @examples
+#' 
+
 # Note on naming:
 # This function was originally referred to as 'heatmap.3',
 # as an addon to 'heatmap.2'. However, a different 'heatmap.3'
@@ -48,17 +60,6 @@
 #
 # Version 2 has implemented rowside colors (cutoffmethod, cutoff).
 # Version 3 will normalize the color scale to value distribution in data.
-#' heatmap2.F.R 
-#'
-#' This function runs differential gene analysis (linear modeling on normalized counts)
-#' 
-#' @keywords heatmap
-#' @export
-#' @import gplots
-#' @import dynamicTreeCut
-#' @import WGCNA
-#' @examples
-#' 
 
 # library(gplots)
 # library(dynamicTreeCut)
