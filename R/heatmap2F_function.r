@@ -9,7 +9,7 @@
 #' @import WGCNA
 #' @examples
 #' 
-
+# AUTHOR: Freddie
 # Note on naming:
 # This function was originally referred to as 'heatmap.3',
 # as an addon to 'heatmap.2'. However, a different 'heatmap.3'
