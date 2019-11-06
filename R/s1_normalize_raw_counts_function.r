@@ -3,7 +3,8 @@
 #' This function allows the normalization of raw counts following a general protocol developed by previous members of the gale lab
 #' @param countfile raw counts table (generally output by htseq).
 #' @param targetfile target file.
-#' @param target_class columns from the target file to build design matrix for future DE analysis 
+#' @param target_column columns from the target file to build design matrix for future DE analysis
+#' @param blocking_column column to account sampling from the same animal multiple times
 #' @param vizualize_data whether or not to generate figures (default set to true).
 #' @param filter_genes_below_counts filter out genes with counts below a certain value, (default set to 0).
 #' @param figres resolution at which to output figures (default is 300).
@@ -13,9 +14,9 @@
 #' @import edgeR
 #' @import edgeR
 #' @examples
-#' normalize_raw_counts(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
+#' normalize_raw_counts(countfile='./p1_modified_count_matrix_results/count_file.txt', targetfile='./p1_modified_count_matrix_results/target_file.csv', gene_conversion_file='rhesus2human.csv', target_column=10, blocking_column=2, vizualize_data=TRUE, filter_genes_below_counts=0, figres=100)
 
-s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=FALSE, target_class=10, blocking_column=FALSE, visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
+s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=FALSE, target_column=10, blocking_column=FALSE, visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
     ###READ IN FILES
     print("STATUS: loading files")
     files            <- loadfiles(count_file=countfile, target_file=targetfile)
@@ -48,8 +49,8 @@ s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=
         results_path <- generate_folder('s1_norm_raw_counts_results')
         unlink('./s1_norm_raw_counts_results/*')
         factors<-list()
-        # for (i in target_class) {
-        treatment    <- factor(files$targets[,target_class], levels=unique(files$targets[,target_class]))
+        # for (i in target_column) {
+        treatment    <- factor(files$targets[,target_column], levels=unique(files$targets[,target_column]))
             # factors <- list.append(factors, i = F)
         # }
         design       <- model.matrix(~0 + treatment)
