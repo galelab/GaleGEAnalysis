@@ -75,7 +75,6 @@ s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=
                 rhesus2human <- read.csv(file=gene_conversion_file, header=TRUE, stringsAsFactors = FALSE)
                 nm_hgnc      <- merge(rhesus2human, norm_matrix, by.x='Gene.stable.ID', by.y='row.names')
                 nm_hgnc      <- avereps(nm_hgnc, ID = nm_hgnc$Gene.stable.ID)
-                row.names(nm_hgnc) <- unique(nm_hgnc[,1])
                 write.table(nm_hgnc, sep='\t', file=file.path(results_path, "1.norm_matrix_HGNC.txt"))
             }
 
