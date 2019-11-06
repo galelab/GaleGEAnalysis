@@ -6,8 +6,8 @@
 #' @param gene_conversion_file file with alternative gene names (we usually convert Rhesus Ensembl genes to HGNC) 
 #' @param blocking_column column to account sampling from the same animal multiple times (needs to be the same as whatever was specified in step s1_normalize_raw_counts)
 #' @param matrixfile text file outlining different contrasts to do in DE analysis 
-#' @pvalue parameter for determining significantly DE genes (default 0.05)
-#' @logfoldchange parameter for determining significantly DE genes (default 1.5)
+#' @param pvalue parameter for determining significantly DE genes (default 0.05)
+#' @param logfoldchange parameter for determining significantly DE genes (default 1.5)
 #' @keywords differential expression linear modeling 
 #' @export
 #' @import edgeR
