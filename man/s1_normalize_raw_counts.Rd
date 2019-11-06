@@ -4,7 +4,8 @@
 \alias{s1_normalize_raw_counts}
 \title{s1 normalize raw counts function following Gale lab protocol}
 \usage{
-s1_normalize_raw_counts(countfile, targetfile, target_class = 10,
+s1_normalize_raw_counts(countfile, targetfile,
+  gene_conversion_file = FALSE, target_column = 10,
   blocking_column = FALSE, visualize_data = TRUE,
   filter_genes_below_counts = 0, figres = 100)
 }
@@ -13,7 +14,9 @@ s1_normalize_raw_counts(countfile, targetfile, target_class = 10,
 
 \item{targetfile}{target file.}
 
-\item{target_class}{columns from the target file to build design matrix for future DE analysis}
+\item{target_column}{columns from the target file to build design matrix for future DE analysis}
+
+\item{blocking_column}{column to account sampling from the same animal multiple times}
 
 \item{filter_genes_below_counts}{filter out genes with counts below a certain value, (default set to 0).}
 
@@ -25,7 +28,7 @@ s1_normalize_raw_counts(countfile, targetfile, target_class = 10,
 This function allows the normalization of raw counts following a general protocol developed by previous members of the gale lab
 }
 \examples{
-normalize_raw_counts(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
+normalize_raw_counts(countfile='./p1_modified_count_matrix_results/count_file.txt', targetfile='./p1_modified_count_matrix_results/target_file.csv', gene_conversion_file='rhesus2human.csv', target_column=10, blocking_column=2, vizualize_data=TRUE, filter_genes_below_counts=0, figres=100)
 }
 \keyword{expression}
 \keyword{gene}

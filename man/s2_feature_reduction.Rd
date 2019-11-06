@@ -4,7 +4,7 @@
 \alias{s2_feature_reduction}
 \title{s2 feature reduction}
 \usage{
-s2_feature_reduction(countfile, targetfile, target_class = c(2, 5),
+s2_feature_reduction(countfile, targetfile, target_columns = c(2, 5),
   figres = 100, pcva = TRUE, pca = TRUE, UMAP = TRUE,
   tsne = TRUE, base_file_name = "vnorm.png")
 }
@@ -13,7 +13,7 @@ s2_feature_reduction(countfile, targetfile, target_class = c(2, 5),
 
 \item{targetfile}{target file.}
 
-\item{target_class}{columns from the target file to label samples on the pca/umap plots (has to be 2)}
+\item{target_columns}{columns from the target file to label samples on the pca/umap plots (has to be 2)}
 
 \item{figres}{resolution at which to output figures (default is 300).}
 
@@ -29,7 +29,7 @@ s2_feature_reduction(countfile, targetfile, target_class = c(2, 5),
 This function does feature reduction and visualization on normalized voom counts
 }
 \examples{
-s2_feature_reduction(count_file.txt, target_file.csv, target_class=c(2,5), base_file_name='vnorm.png')
+s2_feature_reduction(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt',  targetfile='./p1_modified_count_matrix_results/target_file.csv', target_columns=c(2,5), base_file_name='vnorm.png')
 }
 \keyword{expression}
 \keyword{feature}
