@@ -15,7 +15,7 @@
 #' @examples
 #' normalize_raw_counts(count_file.txt, target_file.csv, vizualize_data=TRUE, FilterGenesWithCounts=100)
 
-s1_normalize_raw_counts <- function(countfile, targetfile, target_class=10, blocking_column=FALSE, visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
+s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=FALSE, target_class=10, blocking_column=FALSE, visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
     ###READ IN FILES
     print("STATUS: loading files")
     files            <- loadfiles(count_file=countfile, target_file=targetfile)
@@ -23,10 +23,10 @@ s1_normalize_raw_counts <- function(countfile, targetfile, target_class=10, bloc
 
     #FILTER OUT GENES WITH LOW COUNTS
     print("STATUS: filtering out genes with low counts")
-    isexpr <- A > filter_genes_below_counts
-    A <- rowSums(DE_DF$counts)
-    y <- y[isexpr,]
-    DE_DF_fl <- calcNormFactors(y)
+    A                <- rowSums(DE_DF$counts)
+    isexpr           <- A > filter_genes_below_counts
+    DE_DF            <- DE_DF[isexpr,]
+    DE_DF_fl         <- calcNormFactors(DE_DF)
 
     ###get biological coefficients of variation
     print("STATUS: getting biological coefficient of variation (takes time...)")
@@ -69,6 +69,16 @@ s1_normalize_raw_counts <- function(countfile, targetfile, target_class=10, bloc
 
             ###save normalized counts and design variable used for linear modeling later
             write.table(data.frame(V.CPM$E), sep='\t', col.names=NA, file=file.path(results_path,"1.norm_matrix.txt"))
+            norm_matrix  <- V.CPM$E
+            
+            if (typeof(gene_conversion_file) == 'character') {
+                rhesus2human <- read.csv(file=gene_conversion_file, header=TRUE, stringsAsFactors = FALSE)
+                nm_hgnc      <- merge(rhesus2human, norm_matrix, by.x='Gene.stable.ID', by.y='row.names')
+                nm_hgnc      <- avereps(nm_hgnc, ID = nm_hgnc$Gene.stable.ID)
+                row.names(nm_hgnc) <- unique(nm_hgnc[,1])
+                write.table(nm_hgnc, sep='\t', file=file.path(results_path, "1.norm_matrix_HGNC.txt"))
+            }
+
             saveRDS(V.CPM, file.path(results_path, "1.voomobject.rds"))
 
             if (blocking_column != FALSE) {
