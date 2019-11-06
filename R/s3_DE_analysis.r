@@ -13,6 +13,8 @@
 #' @import edgeR
 #' @import limma
 #' @import gplots 
+#' @import ggplot2
+#' @import data.table
 #' @examples
 #' s3_DE_analysis(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/target_file.csv', gene_conversion_file='rhesus2human.csv', blocking_column=2, matrixfile='./MATRIX.txt')
  
@@ -60,6 +62,8 @@ s3_DE_analysis <- function(countfile, targetfile,  gene_conversion_file=FALSE, b
             }
         }
         if (typeof(matrixfile) == 'character') {
+            print ('STATUS: getting DE genes...')
+ 
             matrix_contrast <- scan(matrixfile,  character(), quote = "")
 
             cont.matrix <- makeContrasts(contrasts=matrix_contrast, levels=design)
@@ -97,6 +101,9 @@ s3_DE_analysis <- function(countfile, targetfile,  gene_conversion_file=FALSE, b
                 GM_HGNC <- merge(rhesus2human, global_modulesM, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
                 write.csv(GM_HGNC, file=file.path(results_path, "3.modules_HGNC.csv"))
             }
+
+            vizualize_DE_genes_bp(results, file.path(results_path,'3.barplot_NumDEgenes.png'))
+
         } else { 
             print ('WARNING: need to specify matrix file')
         }
@@ -104,8 +111,32 @@ s3_DE_analysis <- function(countfile, targetfile,  gene_conversion_file=FALSE, b
 }
 
 vizualize_DE_genes_HM<-function(data, plot_file) {
+    print ('STATUS: Generating heatmap of DE genes...')
     png(plot_file, width = 8, height = 10, units = 'in', res = 300)
     global_modules <- heatmap.F.4(data, cutoff = 1, distmethod = "euclidean", clustermethod = "ward.D", clusterdim='row')
     dev.off()
     return (global_modules)
+}
+
+vizualize_DE_genes_bp<-function(results, plot_file) {
+    print ('STATUS: Generating bar plot of number of DE genes...')
+    results_t <- t(summary(results))
+    results_t <- results_t[,-2]
+
+    for (i in 1:(length(row.names(results_t)))) {
+        results_t[i, 1] <- results_t[i, 1] * -1
+    }
+
+    DE <- as.data.frame(results_t)
+    DE <- setnames(DE, old=c("Var1","Var2", "Freq"), new=c("Time_Point", "group", "DE_genes"))
+
+    #write.csv(DE , file="barplot_TP186.csv",row.names=FALSE)
+
+    #Create plot
+    ggplot(DE, aes(x=Time_Point, y=DE_genes, fill=group, label = DE$DE_genes))+  geom_bar(stat="identity", position="identity")+
+    geom_text(size = 10, position = position_stack(vjust = 0.5) )+
+    scale_fill_manual(values = c("#9d9dff", "#ff4d4d")) +
+    ylab("Number of Differentially Expressed Genes") +
+    theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+    ggsave(plot_file, dpi = 100)
 }
