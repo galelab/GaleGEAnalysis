@@ -12,10 +12,11 @@
 #' @examples
 #' 
 
-s3_DE_analysis <- function(countfile, targetfile, target_class=10, blocking_column=FALSE, matrixfile=FALSE, p_value=0.05, log_fold_change=1.5) { 
-    # design = FALSE
-    # eset_voom = FALSE
-    # corfit = FALSE
+s3_DE_analysis <- function(countfile, targetfile,  gene_conversion_file=FALSE, target_class=10, blocking_column=FALSE, matrixfile=FALSE, p_value=0.05, log_fold_change=1.5) { 
+
+    results_path <- generate_folder('s3_DE_results')
+    unlink('./s3_DE_results/*')
+
     files <- loadfiles(count_file=countfile, target_file=targetfile)
 
     if (file.exists('./s1_norm_raw_counts_results/1.designobject.rds')) { 
@@ -62,43 +63,44 @@ s3_DE_analysis <- function(countfile, targetfile, target_class=10, blocking_colu
             fit <-eBayes(fit)
 
             results <- decideTests(fit, lfc=log2(log_fold_change), method="separate", adjust.method="BH", p.value=p_value)
-            print (summary(results))
             a <- vennCounts(results)
-            # print(a)
-            write.fit(fit, file="SG_Watkins_DE.txt", digits=3, method="separate", adjust="BH")
-            DE_HGNC <- read.csv("SG_Watkins_DE.txt", header = T,row.names = 1, check.names=FALSE,sep = "\t")
-            rhesus2human <- read.csv(file="rhesus2human.csv", header=TRUE, stringsAsFactors = FALSE)
-            print (' 1')
-            DE_HGNC <- merge(rhesus2human, DE_HGNC, by.x='Gene.stable.ID', by.y='row.names')
-            print (' 2')
-            DE_HGNC <- avereps(DE_HGNC, ID = DE_HGNC$HGNC.symbol)
-            # print (' 3')
-            # print (DE_HGNC)
-            # row.names(DE_HGNC) <- unique(DE_HGNC[,1])
-            # print (' 4')
-            # write.csv(DE_HGNC, file="DEgenes_HGNC.csv")
-            dataMatrix <- fit$coefficients # Extract results of differential expression
 
+            write.fit(fit, file=file.path(results_path, "3.DE_orig_fit.txt"), digits=3, method="separate", adjust="BH")
+            DE_HGNC <- read.csv(file.path(results_path, "3.DE_orig_fit.txt"), header = T,row.names = 1, check.names=FALSE,sep = "\t")
+            if (typeof(gene_conversion_file) == 'character') {
+                rhesus2human <- read.csv(file=gene_conversion_file, header=TRUE, stringsAsFactors = FALSE)
+                DE_HGNC <- merge(rhesus2human, DE_HGNC, by.x='Gene.stable.ID', by.y='row.names')
+                DE_HGNC <- avereps(DE_HGNC, ID = DE_HGNC$HGNC.symbol)
+                write.csv(DE_HGNC, file=file.path(results_path, "3.DE_orig_fit_HGNC.csv"))
+            }
+
+            #Pull out signifcantly expressed genes 
+            dataMatrix <- fit$coefficients # Extract results of differential expression #LogFold change is the coefficients
             sigMask <- dataMatrix * (results**2) # 1 if significant, 0 otherwise
-
             ExpressMatrix <- subset(dataMatrix, rowSums(sigMask) != 0) # filter for significant genes
-
-            # Filter sigMask to use for selecting DE genes from ExpressMatrix
             sigMask <- subset(sigMask, rowSums(sigMask) != 0)
+            write.csv(ExpressMatrix, file=file.path(results_path,"3.ExpressMatrix_separate_LFC.csv"))
+            global_modules <- vizualize_DE_genes_HM(ExpressMatrix, file.path(results_path, "3.heatmap_djn.png"))
+            write.csv(global_modules, file=file.path(results_path, "3.modules.csv"))
 
-            dim(sigMask)
-
-            length(sigMask)
-
-            write.csv(ExpressMatrix, file="ExpressMatrix_separate_Watkins.csv")
-            # source('heatmap2.F.R')
-            png("Watkins_heatmap_djn.png",width = 8, height = 10, units = 'in', res = 300)
-            global_modules <- heatmap.F.4(ExpressMatrix, cutoff = 1, distmethod = "euclidean", clustermethod = "ward.D", clusterdim='row')
-            dev.off()
- 
+            if (typeof(gene_conversion_file) == 'character') {
+                DE_HGNC_LFC <- read.csv(file.path(results_path, "3.ExpressMatrix_separate_LFC.csv"), header = T,row.names = 1, check.names=FALSE, sep = ",")
+                DE_HGNC_LFC <- merge(rhesus2human, DE_HGNC_LFC, by.x='Gene.stable.ID', by.y='row.names')
+                DE_HGNC_LFC <- avereps(DE_HGNC_LFC, ID = DE_HGNC_LFC$HGNC.symbol)
+                write.csv(DE_HGNC_LFC, file=file.path(results_path, "3.ExpressMatrix_separate_LFC_HGNC_AV.csv"))
+                global_modulesM <- as.matrix(global_modules)
+                GM_HGNC <- merge(rhesus2human, global_modulesM, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
+                write.csv(GM_HGNC, file=file.path(results_path, "3.modules_HGNC.csv"))
+            }
         } else { 
             print ('WARNING: need to specify matrix file')
         }
     }
 }
 
+vizualize_DE_genes_HM<-function(data, plot_file) {
+    png(plot_file, width = 8, height = 10, units = 'in', res = 300)
+    global_modules <- heatmap.F.4(data, cutoff = 1, distmethod = "euclidean", clustermethod = "ward.D", clusterdim='row')
+    dev.off()
+    return (global_modules)
+}
