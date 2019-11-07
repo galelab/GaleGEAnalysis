@@ -12,7 +12,6 @@
 #' @export
 #' @import limma
 #' @import edgeR
-#' @import edgeR
 #' @examples
 #' normalize_raw_counts(countfile='./p1_modified_count_matrix_results/count_file.txt', targetfile='./p1_modified_count_matrix_results/target_file.csv', gene_conversion_file='rhesus2human.csv', target_column=10, blocking_column=2, vizualize_data=TRUE, filter_genes_below_counts=0, figres=100)
 
