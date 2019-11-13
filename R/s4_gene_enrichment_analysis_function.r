@@ -21,7 +21,7 @@ s4_gene_enrichment_analysis<-function(DEgenes='./s3_DE_results/3.ExpressMatrix_s
 
     write.table(genernk, sep='\t',quote = FALSE, col.names=FALSE, row.names=FALSE, file=file.path(results_path,'DEgenes.rnk'))
 
-    genes <- read.table('./s4_gene_enrichment_results/DEgenes.rnk', sep='\t')
+    genes <- read.table(file.path(results_path,'DEgenes.rnk'), sep='\t')
     geneList <- genes[,2]
     names(geneList) = as.character(genes[,1])
     x<-names(geneList)
