@@ -12,13 +12,14 @@
 
 s4_gene_enrichment_analysis<-function(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', log_values_column=7, pvalue=0.1, NumTopGoTerms=10) {
     results_path <- generate_folder('s4_gene_enrichment_results')
-    unlink('./s4_gene_enrichment_results/*')
+    results_path <- generate_folder(paste0('s4_gene_enrichment_results/column',log_values_column))
+    unlink(paste0(results_path,'/*'))
 
     genefile <- read.csv(DEgenes)
     
     genernk <- genefile[,c(3,log_values_column)]
 
-    write.table(genernk, sep='\t',quote = FALSE, col.names=FALSE, row.names=FALSE, file='./s4_gene_enrichment_results/DEgenes.rnk')
+    write.table(genernk, sep='\t',quote = FALSE, col.names=FALSE, row.names=FALSE, file=file.path(results_path,'DEgenes.rnk'))
 
     genes <- read.table('./s4_gene_enrichment_results/DEgenes.rnk', sep='\t')
     geneList <- genes[,2]
@@ -29,7 +30,7 @@ s4_gene_enrichment_analysis<-function(DEgenes='./s3_DE_results/3.ExpressMatrix_s
     resultFisher  <- runTest(topGOdata, algorithm="classic", statistic="fisher")
     resultKS <- runTest(topGOdata, algorithm ="classic", statistic='ks')
     allRes        <- GenTable(topGOdata, classicFisher=resultFisher, classicKS=resultKS, orderBy ="classicFisher", topNodes=NumTopGoTerms)
-    write.table(allRes, file='./s4_gene_enrichment_results/GOTermTable.csv',sep=',', row.names=FALSE)
+    write.table(allRes, file=file.path(results_path, 'GOTermTable.csv'),sep=',', row.names=FALSE)
     goIDs          <- allRes$GO.ID
     
     for (gt in goIDs) {
@@ -43,7 +44,7 @@ s4_gene_enrichment_analysis<-function(DEgenes='./s3_DE_results/3.ExpressMatrix_s
         for (i in 1:length(pval)) {
             tablex[['logFC']][i]<-pval[i]
         }
-        write.table(tablex, file=paste0('./s4_gene_enrichment_results/',gt,'_genes.csv'), sep=',', row.names=FALSE)
+        write.table(tablex, file=file.path(results_path, paste0(gt,'_genes.csv')), sep=',', row.names=FALSE)
     }
 
     # WebGestaltR(enrichMethod="GSEA",
