@@ -39,9 +39,9 @@ s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=
     ###SET UP MODEL DESIGN
     print("STATUS: setting up model design")
 
-    if (length(files$targets$treatment) != length(colnames(DE_DF)) | all.equal(rownames(files$targets), colnames(files$counts)) != TRUE) {
+    if (length(files$targets[,target_column]) != length(colnames(DE_DF)) | all.equal(rownames(files$targets), colnames(files$counts)) != TRUE) {
         print ('WARNING: different number of treatments and column names in count file or order of samples in target file does not match order in count file (needs fixing before we can proceed)')
-        print (paste0("Length of treatments:", length(files$targets$treatment)))
+        print (paste0("Length of treatments:", length(files$targets$[,target_column])))
         print (paste0("Length of column names in count/normalized matrix:", length(colnames(DE_DF))))
     }
     else {
