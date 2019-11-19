@@ -4,10 +4,16 @@
 \alias{s1_normalize_raw_counts}
 \title{s1 normalize raw counts function following Gale lab protocol}
 \usage{
-s1_normalize_raw_counts(countfile, targetfile,
-  gene_conversion_file = FALSE, target_column = 10,
-  blocking_column = FALSE, visualize_data = TRUE,
-  filter_genes_below_counts = 0, figres = 100)
+s1_normalize_raw_counts(
+  countfile,
+  targetfile,
+  gene_conversion_file = FALSE,
+  target_column = 10,
+  blocking_column = FALSE,
+  visualize_data = TRUE,
+  filter_genes_below_counts = 0,
+  figres = 100
+)
 }
 \arguments{
 \item{countfile}{raw counts table (generally output by htseq).}

@@ -4,8 +4,11 @@
 \alias{p1_modify_count_matrix}
 \title{p1 modifying count matrix modifies count matrix}
 \usage{
-p1_modify_count_matrix(countfile, targetfile,
-  samples_to_remove_count_matrix = FALSE)
+p1_modify_count_matrix(
+  countfile,
+  targetfile,
+  samples_to_remove_count_matrix = FALSE
+)
 }
 \arguments{
 \item{countfile}{raw counts table (generally output by htseq).}

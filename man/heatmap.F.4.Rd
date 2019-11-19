@@ -4,12 +4,23 @@
 \alias{heatmap.F.4}
 \title{heatmap2.F.R}
 \usage{
-heatmap.F.4(dataM, colors = c("darkblue", "mediumblue", "dodgerblue",
-  "white", "orange", "red", "darkred"), colorsaturation = 0.25,
-  distmethod = "pearson", clustermethod = "ward.D2",
-  clusterdim = "row", cutoffmethod = "depth", cutoff = 3,
-  labRow = FALSE, margins = c(10, 2), symbreaks = T,
-  scale = c("none"), keytitle = "log2 Fold Change", main = NULL)
+heatmap.F.4(
+  dataM,
+  colors = c("darkblue", "mediumblue", "dodgerblue", "white", "orange", "red",
+    "darkred"),
+  colorsaturation = 0.25,
+  distmethod = "pearson",
+  clustermethod = "ward.D2",
+  clusterdim = "row",
+  cutoffmethod = "depth",
+  cutoff = 3,
+  labRow = FALSE,
+  margins = c(10, 2),
+  symbreaks = T,
+  scale = c("none"),
+  keytitle = "log2 Fold Change",
+  main = NULL
+)
 }
 \description{
 This function runs differential gene analysis (linear modeling on normalized counts)
