@@ -28,7 +28,7 @@ s2_feature_reduction <- function(countfile='./s1_norm_raw_counts_results/1.norm_
     results_path <- generate_folder('s2_feature_reduction_results')
     
     print ('STATUS: Running MDS feature reduction')
-    vizualize_feature_reduction_data(files$counts, files$targets[,ncol(files$targets)], results_path, base_file_name, figres)
+    vizualize_feature_reduction_data(files$counts, files$targets[,target_columns[1]], results_path, base_file_name, figres)
     if (all.equal(rownames(files$targets), colnames(files$counts)) != TRUE) { 
         print ('WARNING: order of samples in target and count file is not the same, this needs fixing before code can proceed')
     } else {

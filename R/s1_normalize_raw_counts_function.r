@@ -74,7 +74,10 @@ s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=
             dev.off()
 
             ###save normalized counts and design variable used for linear modeling later
-            write.table(data.frame(V.CPM$E), sep='\t', col.names=NA, file=file.path(results_path,"1.norm_matrix.txt"))
+            orig.cols    <- colnames(files$counts)
+            # orig.cols    <- append(orig.cols, 'Name', after=0)
+            orig.rows    <- rownames(V.CPM$E)
+            write.table(data.frame(V.CPM$E), sep='\t', row.names=orig.rows, col.names=orig.cols, file=file.path(results_path,"1.norm_matrix.txt"))
             norm_matrix  <- V.CPM$E
             
             if (typeof(gene_conversion_file) == 'character') {
