@@ -15,7 +15,7 @@
 #' @examples
 #' normalize_raw_counts(countfile='./p1_modified_count_matrix_results/count_file.txt', targetfile='./p1_modified_count_matrix_results/target_file.csv', gene_conversion_file='rhesus2human.csv', target_column=10, blocking_column=2, vizualize_data=TRUE, filter_genes_below_counts=0, figres=100)
 
-s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=FALSE, target_column=10, blocking_column=FALSE, visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
+s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=FALSE, target_column=10, batch_column=FALSE, blocking_column=FALSE, visualize_data=TRUE, filter_genes_below_counts=0, figres=100) { 
     ###READ IN FILES
     print("STATUS: loading files")
     files            <- loadfiles(count_file=countfile, target_file=targetfile)
@@ -48,11 +48,17 @@ s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=
         results_path <- generate_folder('s1_norm_raw_counts_results')
         unlink('./s1_norm_raw_counts_results/*')
         factors<-list()
-        # for (i in target_column) {
-        treatment    <- factor(files$targets[,target_column], levels=unique(files$targets[,target_column]))
-            # factors <- list.append(factors, i = F)
-        # }
-        design       <- model.matrix(~0 + treatment)
+
+        if (typeof(batch_column)=='logical') {
+            treatment    <- factor(files$targets[,target_column], levels=unique(files$targets[,target_column]))
+            design       <- model.matrix(~0 + treatment)
+
+        } else { 
+            treatment    <- factor(files$targets[,target_column], levels=unique(files$targets[,target_column]))
+            batch        <- factor(files$targets[,batch_column], levels=unique(files$targets[,batch_column]))
+            design       <- model.matrix(~0 + treatment+batch)
+
+        }
 
         if (is.fullrank(design) == TRUE & is.null(nonEstimable(design))) { 
             # colnames(design) <- levels(CLASS1)
