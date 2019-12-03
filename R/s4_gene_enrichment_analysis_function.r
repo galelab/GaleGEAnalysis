@@ -7,7 +7,6 @@
 #' @import org.Hs.eg.db
 #' @import AnnotationHub
 #' @import biomaRt
-#' @import png
 #' @import data.table
 #' @import ggplot2
 #' @export
@@ -15,7 +14,6 @@
 #' 
 
 s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', result_folder=FALSE, gene_name_column=3, log_values_column=7, pvalue=0.5, NumTopGoTerms=10, figres=100, base_file_name='ge.png') {
-    # pdf(NULL)
     if (typeof(result_folder) == 'logical') {
         results_path  <- generate_folder('s4_gene_enrichment_results')
         results_path  <- generate_folder(paste0('s4_gene_enrichment_results/column',log_values_column))
@@ -78,6 +76,7 @@ extract_genes <- function(enrichment, rnk, results_path, enrich_type='ora', NumG
         write.table(genedescfinal, file=file.path(results_path, paste0(enrichment[i]$Description,'_', enrich_type, '_genes.csv')), sep=',', row.names=FALSE)
      }
 }
+
 extract_genesego <- function(enrichment, rnk, results_path, enrich_type='ora', NumGOterms=10) {
 
     ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")    
