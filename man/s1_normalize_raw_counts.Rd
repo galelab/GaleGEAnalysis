@@ -9,6 +9,7 @@ s1_normalize_raw_counts(
   targetfile,
   gene_conversion_file = FALSE,
   target_column = 10,
+  batch_column = FALSE,
   blocking_column = FALSE,
   visualize_data = TRUE,
   filter_genes_below_counts = 0,
