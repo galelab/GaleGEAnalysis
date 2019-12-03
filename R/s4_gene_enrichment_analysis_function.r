@@ -13,7 +13,7 @@
 #' @examples
 #' 
 
-s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', result_folder=FALSE, gene_name_column=3, log_values_column=7, pvalue=0.5, NumTopGoTerms=10, figres=100, base_file_name='ge.png') {
+s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', result_folder=FALSE, gene_name_column=3, log_values_column=7, pvalue=0.1, NumTopGoTerms=10, figres=100, base_file_name='ge.png') {
     if (typeof(result_folder) == 'logical') {
         results_path  <- generate_folder('s4_gene_enrichment_results')
         results_path  <- generate_folder(paste0('s4_gene_enrichment_results/column',log_values_column))
