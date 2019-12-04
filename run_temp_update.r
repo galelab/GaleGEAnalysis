@@ -1,5 +1,0 @@
-##This is a temp R code to run update documentation of codes in this package (will be removed at the end of development)
-setwd('/share/lwhitmo/software/GaleGEAnalysis')
-library('devtools')
-library('roxygen2')
-document()
