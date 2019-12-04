@@ -5,7 +5,7 @@ Goal of this software is to provide a pipeline for lab members to analyze gene e
 
 
 ## Install 
-To download in R please use install_github('lwhitmore/GaleGEAnalysis').  First load library('devtools')
+To download in R please use install_github('galelab/GaleGEAnalysis').  First load library('devtools')
 
 ## How to execute pipeline
 GaleGEAnalysis currently has 5 primary functions
