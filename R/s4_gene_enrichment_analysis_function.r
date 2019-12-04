@@ -3,6 +3,15 @@
 #' This function runs gene enrichment analysis
 #' 
 #' @keywords gene enrichment analysis 
+#' @param DEgenes file containg log fold change for DE genes (default ./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv)
+#' @param go_enrich_type type of GO enrichment to do (BP, CC, or MF) (default BP)
+#' @param result_folder user specified output folder (default is s4_gene_enrichment_results)
+#' @param gene_name_column column in DEgenes file with HGNC symbols (default 3)
+#' @param log_values_column column with log fold change values for GSEA (default 7)
+#' @param pvalue adjusted pvalue cutoff (default 0.1)
+#' @param NumTopGoTerms top GO terms to show (default 10)
+#' @param figres resolution of output figures (default 300) 
+#' @param base_file_name name to save files under (default ge.png)
 #' @import clusterProfiler 
 #' @import org.Hs.eg.db
 #' @import AnnotationHub
@@ -11,7 +20,7 @@
 #' @import ggplot2
 #' @export
 #' @examples
-#' 
+#' s4_gene_enrichment_analysis(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', gene_name_column=3, log_values_column=4, pvalue=0.05, NumbTopGoTerms=10)
 
 s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', result_folder=FALSE, gene_name_column=3, log_values_column=7, pvalue=0.1, NumTopGoTerms=10, figres=300, base_file_name='ge.png') {
     if (typeof(result_folder) == 'logical') {
