@@ -16,12 +16,14 @@ GaleGEAnalysis currently has 4 primary functions
 5. s4_gene_enrichment_analysis - function will perform over representation analysis (ORA) and gene set enrichment analysis (GSEA) on list of genes provide by the user or from a list of differentially expressed genes from step s3_DE_analysis. The column with the log fold change the user wants to use to run GSEA or ORA on must be specified by parameter log_values_column as well as the column where the gene symbols are by parameter gene_name_column.  Note that gene names must be HGNC symbol and must be human.  This means previous steps must have used the gene_conversion_parameter unless gene IDs were orginally HGNCs.  Defaults for this may not work with users analysis so be careful.  Results are put in folder s4_gene_enrichment_results/ unless otherwise specified by user.
 
 ## Example of pipeline run
-p1_modify_count_matrix(countfile='count_matrix.txt', targetfile='target.csv', samples_to_remove_count_matrix=c(sample1,sample2))
+Commands for running pipelinen 
 
-s1_normalize_raw_counts(countfile='./p1_modified_count_matrix_results/count_matrix_mod.txt', targetfile='./p1_modified_count_matrix_results/targets_mod.csv', gene_conversion_file='rhesus2human.csv', target_column=3, batch_column=2,filter_genes_below_counts=50)
+1. p1_modify_count_matrix(countfile='count_matrix.txt', targetfile='target.csv', samples_to_remove_count_matrix=c(sample1,sample2))
 
-s2_feature_reduction(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/targets_mod.csv', target_columns=c(2,5))
+2. s1_normalize_raw_counts(countfile='./p1_modified_count_matrix_results/count_matrix_mod.txt', targetfile='./p1_modified_count_matrix_results/targets_mod.csv', gene_conversion_file='rhesus2human.csv', target_column=3, batch_column=2,filter_genes_below_counts=50)
 
-s3_DE_analysis(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/target_file.csv', gene_conversion_file='rhesus2human.csv',  'matrixfile=MATRIXEXAMPLE.txt', pvalue=0.05, logfoldchange=1.5)
+3. s2_feature_reduction(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/targets_mod.csv', target_columns=c(2,5))
 
-s4_gene_enrichment_analysis(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv',  go_enrich_type='BP')
+4. s3_DE_analysis(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/target_file.csv', gene_conversion_file='rhesus2human.csv',  'matrixfile=MATRIXEXAMPLE.txt', pvalue=0.05, logfoldchange=1.5)
+
+5. s4_gene_enrichment_analysis(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv',  go_enrich_type='BP')
