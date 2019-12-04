@@ -1,5 +1,5 @@
 
-# Gale Lab differential gene analysis
+# Gale Lab differential gene analysis pipeline
 
 Goal of this software is to provide a pipeline for lab members to analyze gene expression data
 
