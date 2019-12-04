@@ -13,7 +13,7 @@
 #' @examples
 #' 
 
-s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', result_folder=FALSE, gene_name_column=3, log_values_column=7, pvalue=0.1, NumTopGoTerms=10, figres=100, base_file_name='ge.png') {
+s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', result_folder=FALSE, gene_name_column=3, log_values_column=7, pvalue=0.1, NumTopGoTerms=10, figres=300, base_file_name='ge.png') {
     if (typeof(result_folder) == 'logical') {
         results_path  <- generate_folder('s4_gene_enrichment_results')
         results_path  <- generate_folder(paste0('s4_gene_enrichment_results/column',log_values_column))
@@ -47,13 +47,13 @@ s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_
     gse   <- gseGO(geneList=geneList, ont=go_enrich_type, pvalueCutoff  = pvalue, keyType='SYMBOL', OrgDb=org.Hs.eg.db, verbose=F)   
     
     cnetplot(ego, foldChange=geneList)
-    ggsave(file.path(results_path, paste0('over_enrich_cnetplot_',base_file_name)), dpi=300)
+    ggsave(file.path(results_path, paste0('over_enrich_cnetplot_',base_file_name)), dpi=figres)
 
     barplot(ego, showCategory=NumTopGoTerms)
-    ggsave(file.path(results_path, paste0('over_enrich_barplot_',base_file_name)), dpi=300)
+    ggsave(file.path(results_path, paste0('over_enrich_barplot_',base_file_name)), dpi=figres)
 
     dotplot(gse,showCategory=NumTopGoTerms)
-    ggsave(file.path(results_path, paste0('gse_enrich_doplot_',base_file_name)), dpi=300)
+    ggsave(file.path(results_path, paste0('gse_enrich_doplot_',base_file_name)), dpi=figres)
 
     extract_genesego(ego, genes, results_path, enrich_type='ora', NumGOterms=NumTopGoTerms)
     extract_genes(gse, genes, results_path, enrich_type='gsea', NumGOterms=NumTopGoTerms)
