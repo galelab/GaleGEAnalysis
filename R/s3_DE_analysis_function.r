@@ -134,9 +134,9 @@ vizualize_DE_genes_bp<-function(results, plot_file) {
 
     #Create plot
     ggplot(DE, aes(x=Time_Point, y=DE_genes, fill=group, label = DE$DE_genes))+  geom_bar(stat="identity", position="identity")+
-    geom_text(size = 10, position = position_stack(vjust = 0.5) )+
+    # geom_text(size = 5, position = position_stack(vjust = 0) )+
     scale_fill_manual(values = c("#9d9dff", "#ff4d4d")) +
     ylab("Number of Differentially Expressed Genes") +
     theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
-    ggsave(plot_file, dpi = 100)
+    ggsave(plot_file, dpi = 300)
 }

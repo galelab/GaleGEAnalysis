@@ -22,7 +22,7 @@
 #' @examples
 #' s2_feature_reduction(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt',  targetfile='./p1_modified_count_matrix_results/target_file.csv', target_columns=c(2,5), base_file_name='vnorm.png')
 
-s2_feature_reduction <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/targets_mod.csv', target_columns=c(2,5), figres=100, pcva=TRUE, pca=TRUE, UMAP=TRUE, tsne=TRUE, base_file_name='vnorm.png') { 
+s2_feature_reduction <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/targets_mod.csv', target_columns=c(2,5), figres=100, pcva=FALSE, pca=TRUE, UMAP=TRUE, tsne=TRUE, base_file_name='vnorm.png') { 
     pdf(NULL)
     files <- loadfiles(count_file=countfile, target_file=targetfile)
     results_path <- generate_folder('s2_feature_reduction_results')

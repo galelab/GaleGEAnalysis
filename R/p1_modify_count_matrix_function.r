@@ -11,7 +11,7 @@
 
 p1_modify_count_matrix <- function(countfile, targetfile, samples_to_remove_count_matrix=FALSE) {
     #remove samples to not include analyses
-    if (samples_to_remove_count_matrix != FALSE) {
+    if (typeof(samples_to_remove_count_matrix) == 'character') {
         if ((grep('.txt', samples_to_remove_count_matrix) == 1) || (grep('.csv', samples_to_remove_count_matrix) == 1)) {
             samples_to_remove <- read.table(samples_to_remove_count_matrix, header=FALSE, row.names=1)
             samples_to_remove_count_matrix <- rownames(samples_to_remove)
@@ -33,10 +33,9 @@ p1_modify_count_matrix <- function(countfile, targetfile, samples_to_remove_coun
             write.table(data.frame("Name"=rownames(modcounts), modcounts), sep = "\t", row.names=FALSE, file=file.path(results_path,"count_matrix_mod.txt"))
             write.csv(data.frame("Name"=rownames(modtargets), modtargets), row.names=FALSE, file=file.path(results_path,"targets_mod.csv"))
             
-            results <- list("counts" = modcounts, "targets" = modtargets)
-            
-            return (results)
+            results <- list("counts" = modcounts, "targets" = modtargets)   
         }
+    } else { 
+       print ('STATUS: NO SAMPLES REMOVED')
     }
-    print ('STATUS: NO SAMPLES REMOVED')
 }

@@ -9,6 +9,7 @@
 #' @param gene_name_column column in DEgenes file with HGNC symbols (default 3)
 #' @param log_values_column column with log fold change values for GSEA (default 7)
 #' @param pvalue adjusted pvalue cutoff (default 0.1)
+#' @param qvalue q value cutoff (default 0.05)
 #' @param NumTopGoTerms top GO terms to show (default 10)
 #' @param figres resolution of output figures (default 300) 
 #' @param base_file_name name to save files under (default ge.png)
@@ -22,7 +23,7 @@
 #' @examples
 #' s4_gene_enrichment_analysis(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', gene_name_column=3, log_values_column=4, pvalue=0.05, NumbTopGoTerms=10)
 
-s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', result_folder=FALSE, gene_name_column=3, log_values_column=7, pvalue=0.1, NumTopGoTerms=10, figres=300, base_file_name='ge.png') {
+s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', result_folder=FALSE, gene_name_column=3, log_values_column=7, pvalue=0.1, qvalue=0.05, NumTopGoTerms=10, figres=300, base_file_name='ge.png') {
     if (typeof(result_folder) == 'logical') {
         results_path  <- generate_folder('s4_gene_enrichment_results')
         results_path  <- generate_folder(paste0('s4_gene_enrichment_results/column',log_values_column))
@@ -39,11 +40,41 @@ s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_
     write.table(genernk, sep='\t',quote = FALSE, col.names=FALSE, row.names=FALSE, file=file.path(results_path,'DEgenes.rnk'))
 
     genes         <- read.table(file.path(results_path,'DEgenes.rnk'), sep='\t')
+    print (dim(genes))
+    gene_up       <-  genes[(genes[,2]>0),]
+    gene_down     <-  genes[(genes[,2]<0),]
+
+    geneList_up      <- gene_up[,2]
+    names(geneList_up) = as.character(gene_up[,1])
+    geneList_up      <- sort(geneList_up,decreasing=TRUE)
+    genenames_up     <-names(geneList_up)
+
+    geneList_down      <- gene_down[,2]
+    names(geneList_down) = as.character(gene_down[,1])
+    geneList_down      <- sort(geneList_down, decreasing=TRUE)
+    genenames_down     <-names(geneList_down)
     geneList      <- genes[,2]
     names(geneList) = as.character(genes[,1])
     x             <-names(geneList)
+    print (length(x))
     geneList      <- sort(geneList,decreasing=TRUE)
 
+
+    egoup <- enrichGO(gene          = genenames_up,
+                    OrgDb         = org.Hs.eg.db,
+                    keyType       = 'SYMBOL',
+                    ont           = go_enrich_type,
+                    pAdjustMethod = "BH",
+                    pvalueCutoff  = pvalue,
+                    qvalueCutoff  = 0.05)
+
+    egodown <- enrichGO(gene          = genenames_down,
+                    OrgDb         = org.Hs.eg.db,
+                    keyType       = 'SYMBOL',
+                    ont           = go_enrich_type,
+                    pAdjustMethod = "BH",
+                    pvalueCutoff  = pvalue,
+                    qvalueCutoff  = 0.05)
 
     ego <- enrichGO(gene          = x,
                     OrgDb         = org.Hs.eg.db,
@@ -54,17 +85,28 @@ s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_
                     qvalueCutoff  = 0.05)
 
     gse   <- gseGO(geneList=geneList, ont=go_enrich_type, pvalueCutoff  = pvalue, keyType='SYMBOL', OrgDb=org.Hs.eg.db, verbose=F)   
-    
+
+    print (head(as.data.frame(ego)))
+
     cnetplot(ego, foldChange=geneList)
-    ggsave(file.path(results_path, paste0('over_enrich_cnetplot_',base_file_name)), dpi=figres)
+    ggsave(file.path(results_path, paste0('over_enrich_cnetplotall_',base_file_name)), dpi=figres)
 
     barplot(ego, showCategory=NumTopGoTerms)
-    ggsave(file.path(results_path, paste0('over_enrich_barplot_',base_file_name)), dpi=figres)
+    ggsave(file.path(results_path, paste0('over_enrich_barplotall_',base_file_name)), dpi=figres)
+
+    barplot(egoup, showCategory=NumTopGoTerms)
+    ggsave(file.path(results_path, paste0('over_enrich_barplotup_',base_file_name)), dpi=figres)
+
+
+    barplot(egodown, showCategory=NumTopGoTerms)
+    ggsave(file.path(results_path, paste0('over_enrich_barplotdown_',base_file_name)), dpi=figres)
 
     dotplot(gse,showCategory=NumTopGoTerms)
     ggsave(file.path(results_path, paste0('gse_enrich_doplot_',base_file_name)), dpi=figres)
 
-    extract_genesego(ego, genes, results_path, enrich_type='ora', NumGOterms=NumTopGoTerms)
+    extract_genesego(ego, genes, results_path, enrich_type='ora', direction='up', NumGOterms=NumTopGoTerms)
+    extract_genesego(ego, genes, results_path, enrich_type='ora', direction='down', NumGOterms=NumTopGoTerms)
+
     extract_genes(gse, genes, results_path, enrich_type='gsea', NumGOterms=NumTopGoTerms)
 }
 
@@ -86,7 +128,7 @@ extract_genes <- function(enrichment, rnk, results_path, enrich_type='ora', NumG
      }
 }
 
-extract_genesego <- function(enrichment, rnk, results_path, enrich_type='ora', NumGOterms=10) {
+extract_genesego <- function(enrichment, rnk, results_path, enrich_type='ora', direction='up', NumGOterms=10) {
 
     ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")    
     
@@ -100,6 +142,6 @@ extract_genesego <- function(enrichment, rnk, results_path, enrich_type='ora', N
         tabl1 <- data.table(rnk)
 
         genedescfinal <- merge(tabl, tabl1, by.x='external_gene_name', by.y='V1')
-        write.table(genedescfinal, file=file.path(results_path, paste0(enrichment[i]$Description,'_', enrich_type, '_genes.csv')), sep=',', row.names=FALSE)
+        write.table(genedescfinal, file=file.path(results_path, paste0(enrichment[i]$Description,'_',direction, '_', enrich_type, '_genes.csv')), sep=',', row.names=FALSE)
      }
 }
