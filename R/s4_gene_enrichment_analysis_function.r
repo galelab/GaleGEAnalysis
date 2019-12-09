@@ -40,7 +40,6 @@ s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_
     write.table(genernk, sep='\t',quote = FALSE, col.names=FALSE, row.names=FALSE, file=file.path(results_path,'DEgenes.rnk'))
 
     genes         <- read.table(file.path(results_path,'DEgenes.rnk'), sep='\t')
-    print (dim(genes))
     gene_up       <-  genes[(genes[,2]>0),]
     gene_down     <-  genes[(genes[,2]<0),]
 
@@ -56,7 +55,6 @@ s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_
     geneList      <- genes[,2]
     names(geneList) = as.character(genes[,1])
     x             <-names(geneList)
-    print (length(x))
     geneList      <- sort(geneList,decreasing=TRUE)
 
 
@@ -85,8 +83,6 @@ s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_
                     qvalueCutoff  = 0.05)
 
     gse   <- gseGO(geneList=geneList, ont=go_enrich_type, pvalueCutoff  = pvalue, keyType='SYMBOL', OrgDb=org.Hs.eg.db, verbose=F)   
-
-    print (head(as.data.frame(ego)))
 
     cnetplot(ego, foldChange=geneList)
     ggsave(file.path(results_path, paste0('over_enrich_cnetplotall_',base_file_name)), dpi=figres)
