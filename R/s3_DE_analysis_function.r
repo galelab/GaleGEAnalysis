@@ -88,9 +88,9 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             ##SIGNIFICANT LOGVALUES
             dataMatrix <- fit$coefficients # Extract results of differential expression #LogFold change is the coefficients
             sigMask <- dataMatrix * (results**2) # 1 if significant, 0 otherwise
-            ExpressMatrix <- subset(dataMatrix, rowSums(sigMask) != 0) # filter for significant genes
+            ExpressMatrixLFC <- subset(dataMatrix, rowSums(sigMask) != 0) # filter for significant genes
             sigMask <- subset(sigMask, rowSums(sigMask) != 0)
-            write.csv(ExpressMatrix, file=file.path(results_path,"3.Significant_separate_LFC.csv"))
+            write.csv(ExpressMatrixLFC, file=file.path(results_path,"3.Significant_separate_LFC.csv"))
             convert2HGNC(gene_conversion_file, "3.Significant_separate_LFC.csv", "3.Significant_separate_LFC_HGNC_AV.csv", results_path)
 
             ##SIGNIFICANT T values
@@ -137,7 +137,7 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             }
 
 
-            global_modules <- vizualize_DE_genes_HM(ExpressMatrix, file.path(results_path, "3.heatmap_djn.png"))
+            global_modules <- vizualize_DE_genes_HM(ExpressMatrixLFC, file.path(results_path, "3.heatmap_djn.png"))
             write.csv(global_modules, file=file.path(results_path, "3.modules.csv"))
             global_modulesM <- as.matrix(global_modules)
             GM_HGNC <- merge(rhesus2human, global_modulesM, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
