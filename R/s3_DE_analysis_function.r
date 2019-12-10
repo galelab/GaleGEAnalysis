@@ -83,30 +83,85 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
                 write.csv(DE_HGNC, file=file.path(results_path, "3.DE_orig_fit_HGNC.csv"))
             }
 
-            #Pull out signifcantly expressed genes 
+            #Pull out signifcantly expressed genes
+
+            ##SIGNIFICANT LOGVALUES
             dataMatrix <- fit$coefficients # Extract results of differential expression #LogFold change is the coefficients
             sigMask <- dataMatrix * (results**2) # 1 if significant, 0 otherwise
             ExpressMatrix <- subset(dataMatrix, rowSums(sigMask) != 0) # filter for significant genes
             sigMask <- subset(sigMask, rowSums(sigMask) != 0)
-            write.csv(ExpressMatrix, file=file.path(results_path,"3.ExpressMatrix_separate_LFC.csv"))
+            write.csv(ExpressMatrix, file=file.path(results_path,"3.Significant_separate_LFC.csv"))
+            convert2HGNC(gene_conversion_file, "3.Significant_separate_LFC.csv", "3.Significant_separate_LFC_HGNC_AV.csv", results_path)
+
+            ##SIGNIFICANT T values
+            dataMatrix <- fit$t # Extract results of differential expression #LogFold change is the coefficients
+            sigMask <- dataMatrix * (results**2) # 1 if significant, 0 otherwise
+            ExpressMatrix <- subset(dataMatrix, rowSums(sigMask) != 0) # filter for significant genes
+            sigMask <- subset(sigMask, rowSums(sigMask) != 0)
+            write.csv(ExpressMatrix, file=file.path(results_path,"3.Significant_separate_tvalues.csv"))            
+            convert2HGNC(gene_conversion_file, "3.Significant_separate_tvalues.csv", "3.Significant_separate_tvalues_HGNC_AV.csv", results_path)
+    
+             ##SIGNIFICANT P values
+            dataMatrix <- fit$p.value # Extract results of differential expression #LogFold change is the coefficients
+            sigMask <- dataMatrix * (results**2) # 1 if significant, 0 otherwise
+            ExpressMatrix <- subset(dataMatrix, rowSums(sigMask) != 0) # filter for significant genes
+            sigMask <- subset(sigMask, rowSums(sigMask) != 0)
+            write.csv(ExpressMatrix, file=file.path(results_path,"3.Significant_separate_Pvalues.csv"))         
+            convert2HGNC(gene_conversion_file, "3.Significant_separate_Pvalues.csv", "3.Significant_separate_Pvalues_HGNC_AV.csv", results_path)            
+ 
+            results_path2 <- generate_folder('s3_DE_results/enrichfiles')
+            unlink('./s3_DE_results/enrichfiles/*')
+            # print (head(fit$coefficients))
+            datamatrix <- fit$coefficients[, c("treatmentInfected_BL-treatmentInfected_w1")]
+
+            counter <- 0
+            for (i in colnames(fit$coefficients)) {
+                counter <- counter + 1
+                results_single <-  results[, c(i)]
+                results_single <- results_single[(results_single[,1] != 0),]
+                significantgenes <- fit$coefficients[rownames(results_single), counter]
+                if (typeof(gene_conversion_file) == 'character') {
+                    sig_HGNC <- merge(rhesus2human, significantgenes, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
+                    sig_HGNC <- sig_HGNC[ , !(names(sig_HGNC) %in% c('Gene.stable.ID'))]
+                    write.table(sig_HGNC, file=file.path(results_path2, paste0(i,'.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
+                } else { 
+                    write.table(significantgenes, file=file.path(results_path2, paste0(i,'.rnk')), col.names = FALSE, sep='\t', quote=FALSE)
+                }   
+
+                # datamatrix    <- fit$p.value[, c(i)]
+                # sigMask       <- dataMatrix * (results_single**2) # 1 if significant, 0 otherwise
+                # ExpressMatrix <- subset(dataMatrix, rowSums(sigMask) != 0) # filter for significant genes
+                # sigMask       <- subset(sigMask, rowSums(sigMask) != 0
+                # P.values      <-p.adjust(ExpressMatrix, method="BH");
+
+            }
+
+
             global_modules <- vizualize_DE_genes_HM(ExpressMatrix, file.path(results_path, "3.heatmap_djn.png"))
             write.csv(global_modules, file=file.path(results_path, "3.modules.csv"))
+            global_modulesM <- as.matrix(global_modules)
+            GM_HGNC <- merge(rhesus2human, global_modulesM, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
+            write.csv(GM_HGNC, file=file.path(results_path,  "3.modules_HGNC.csv"))
 
-            if (typeof(gene_conversion_file) == 'character') {
-                DE_HGNC_LFC <- read.csv(file.path(results_path, "3.ExpressMatrix_separate_LFC.csv"), header = T,row.names = 1, check.names=FALSE, sep = ",")
-                DE_HGNC_LFC <- merge(rhesus2human, DE_HGNC_LFC, by.x='Gene.stable.ID', by.y='row.names')
-                DE_HGNC_LFC <- avereps(DE_HGNC_LFC, ID = DE_HGNC_LFC$HGNC.symbol)
-                write.csv(DE_HGNC_LFC, file=file.path(results_path, "3.ExpressMatrix_separate_LFC_HGNC_AV.csv"))
-                global_modulesM <- as.matrix(global_modules)
-                GM_HGNC <- merge(rhesus2human, global_modulesM, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
-                write.csv(GM_HGNC, file=file.path(results_path, "3.modules_HGNC.csv"))
-            }
 
             vizualize_DE_genes_bp(results, file.path(results_path,'3.barplot_NumDEgenes.png'))
 
         } else { 
             print ('WARNING: need to specify matrix file')
         }
+    }
+}
+
+convert2HGNC<-function(gene_conversion_file, input_file, output_file, results_path) { 
+    if (typeof(gene_conversion_file) == 'character') {
+        rhesus2human <- read.csv(file=gene_conversion_file, header=TRUE, stringsAsFactors = FALSE)
+        DE_HGNC_LFC <- read.csv(file.path(results_path, input_file), header = T,row.names = 1, check.names=FALSE, sep = ",")
+        DE_HGNC_LFC <- merge(rhesus2human, DE_HGNC_LFC, by.x='Gene.stable.ID', by.y='row.names')
+        DE_HGNC_LFC <- avereps(DE_HGNC_LFC, ID = DE_HGNC_LFC$HGNC.symbol)
+        write.csv(DE_HGNC_LFC, file=file.path(results_path, output_file))
+
+    } else { 
+        print ('WARNING: need to specify conversion file to convert Ensembls to HGNCs')
     }
 }
 
