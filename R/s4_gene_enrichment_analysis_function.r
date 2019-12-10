@@ -23,25 +23,46 @@
 #' @examples
 #' s4_gene_enrichment_analysis(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', gene_name_column=3, log_values_column=4, pvalue=0.05, NumbTopGoTerms=10)
 
-s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', result_folder=FALSE, gene_name_column=3, log_values_column=7, pvalue=0.1, qvalue=0.05, NumTopGoTerms=10, figres=300, base_file_name='ge.png') {
+s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.Significant_separate_LFC_HGNC_AV', go_enrich_type='BP', result_folder=FALSE, comparison=FALSE, log_values_column=7, pvalue=0.1, qvalue=0.05, NumTopGoTerms=10, figres=300,  logfoldchange=1.5, base_file_name='ge.png') {
     if (typeof(result_folder) == 'logical') {
-        results_path  <- generate_folder('s4_gene_enrichment_results')
-        results_path  <- generate_folder(paste0('s4_gene_enrichment_results/column',log_values_column))
-        unlink(paste0(results_path,'/*'))
+        results_path      <- generate_folder('s4_gene_enrichment_results')
+        if (typeof(comparison) == 'logical') { 
+            results_path  <- generate_folder(paste0('s4_gene_enrichment_results/column',log_values_column))
+            unlink(paste0(results_path,'/*'))
+        } else { 
+            results_path  <- generate_folder(paste0('s4_gene_enrichment_results/',comparison))
+            unlink(paste0(results_path,'/*'))          
+        }
     } else { 
-        results_path  <- generate_folder(result_folder)
-        results_path  <- generate_folder(paste0(result_folder,'/column',log_values_column))
-        unlink(paste0(results_path,'/*'))
+        results_path      <- generate_folder(result_folder)
+        if (typeof(comparison) == 'logical') { 
+            results_path  <- generate_folder(paste0(result_folder,'/column',log_values_column))
+            unlink(paste0(results_path,'/*'))
+        } else { 
+            results_path  <- generate_folder(paste0(result_folder, '/',comparison))
+            unlink(paste0(results_path,'/*'))          
+        }
     }
 
 
-    genefile      <- read.csv(DEgenes)
-    genernk       <- genefile[,c(gene_name_column, log_values_column)]
-    write.table(genernk, sep='\t',quote = FALSE, col.names=FALSE, row.names=FALSE, file=file.path(results_path,'DEgenes.rnk'))
+    # genefile      <- read.csv(DEgenes)
+    # genernk       <- genefile[,c(gene_name_column, log_values_column)]
+    # genernkup       <- genernk[(genernk[,2]> log(logfoldchange)),]
+    # genernkdown     <- genernk[(genernk[,2]< -log(logfoldchange)),]
 
-    genes         <- read.table(file.path(results_path,'DEgenes.rnk'), sep='\t')
-    gene_up       <-  genes[(genes[,2]>0),]
-    gene_down     <-  genes[(genes[,2]<0),]
+    # write.table(genernkup, sep='\t',quote = FALSE, col.names=FALSE, row.names=FALSE, file=file.path(results_path,'DEgenes.rnk'))
+    # write.table(genernkdown, sep='\t',quote = FALSE, col.names=FALSE, row.names=FALSE, append=TRUE, file=file.path(results_path,'DEgenes.rnk'))
+    if (typeof(comparison) == 'character') { 
+        genes         <- read.table(file.path('./s3_DE_results/enrichfiles',paste0(comparison,'.rnk')), sep='\t')
+    } else { 
+        genefile      <- read.csv(DEgenes)
+        cnames        <- colnames(genefile)
+        genes         <- read.table(file.path('./s3_DE_results/enrichfiles', paste0(cnames[log_values_column],'.rnk')), sep='\t')
+    }
+
+    # genes         <- read.table(file.path(results_path,'DEgenes.rnk'), sep='\t')
+    gene_up       <-  genes[(genes[,2]> log(logfoldchange)),]
+    gene_down     <-  genes[(genes[,2]< -log(logfoldchange)),]
 
     geneList_up      <- gene_up[,2]
     names(geneList_up) = as.character(gene_up[,1])
@@ -57,7 +78,7 @@ s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_
     x             <-names(geneList)
     geneList      <- sort(geneList,decreasing=TRUE)
 
-
+    print ('STATUS: running over enrichment analysis')
     egoup <- enrichGO(gene          = genenames_up,
                     OrgDb         = org.Hs.eg.db,
                     keyType       = 'SYMBOL',
@@ -81,11 +102,15 @@ s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_
                     pAdjustMethod = "BH",
                     pvalueCutoff  = pvalue,
                     qvalueCutoff  = 0.05)
-
+    print ('STATUS: running GSEA analysis')
     gse   <- gseGO(geneList=geneList, ont=go_enrich_type, pvalueCutoff  = pvalue, keyType='SYMBOL', OrgDb=org.Hs.eg.db, verbose=F)   
 
-    cnetplot(ego, foldChange=geneList)
-    ggsave(file.path(results_path, paste0('over_enrich_cnetplotall_',base_file_name)), dpi=figres)
+    if (length(colnames(ego)) > 2) {
+        cnetplot(ego, foldChange=geneList)
+        ggsave(file.path(results_path, paste0('over_enrich_cnetplotall_',base_file_name)), dpi=figres)
+    } else { 
+        print ('WARNING: not enough data to generate cnetplot for all differentially expressed genes over enrichment')
+    }
 
     barplot(ego, showCategory=NumTopGoTerms)
     ggsave(file.path(results_path, paste0('over_enrich_barplotall_',base_file_name)), dpi=figres)
@@ -93,15 +118,34 @@ s4_gene_enrichment_analysis <-function(DEgenes='./s3_DE_results/3.ExpressMatrix_
     barplot(egoup, showCategory=NumTopGoTerms)
     ggsave(file.path(results_path, paste0('over_enrich_barplotup_',base_file_name)), dpi=figres)
 
+    if (length(colnames(egoup)) > 2) { 
+        cnetplot(egoup, foldChange=geneList)
+        ggsave(file.path(results_path, paste0('over_enrich_cnetplotup_',base_file_name)), dpi=figres)
+    } else { 
+        print ('WARNING: not enough data to generate cnetplot for upregulated genes over enrichment')
+    }
 
     barplot(egodown, showCategory=NumTopGoTerms)
     ggsave(file.path(results_path, paste0('over_enrich_barplotdown_',base_file_name)), dpi=figres)
 
+    if (length(colnames(egodown)) > 2) { 
+        cnetplot(egodown, foldChange=geneList)
+        ggsave(file.path(results_path, paste0('over_enrich_cnetplotdown_',base_file_name)), dpi=figres)
+    } else { 
+        print ('WARNING: not enough data to generate cnetplot for downregulated genes over enrichment')
+    }
+    if (length(colnames(egoup)) > 2) {
+        extract_genesego(egoup, genes, results_path, enrich_type='ora', direction='up', NumGOterms=NumTopGoTerms)
+    }
+    if (length(colnames(egodown)) > 2) {
+        extract_genesego(egodown, genes, results_path, enrich_type='ora', direction='down', NumGOterms=NumTopGoTerms)
+    }
+    if (length(colnames(ego)) > 2) {
+        extract_genesego(ego, genes, results_path, enrich_type='ora', direction='all', NumGOterms=NumTopGoTerms)
+    }
+
     dotplot(gse,showCategory=NumTopGoTerms)
     ggsave(file.path(results_path, paste0('gse_enrich_doplot_',base_file_name)), dpi=figres)
-
-    extract_genesego(ego, genes, results_path, enrich_type='ora', direction='up', NumGOterms=NumTopGoTerms)
-    extract_genesego(ego, genes, results_path, enrich_type='ora', direction='down', NumGOterms=NumTopGoTerms)
 
     extract_genes(gse, genes, results_path, enrich_type='gsea', NumGOterms=NumTopGoTerms)
 }
