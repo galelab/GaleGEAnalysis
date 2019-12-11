@@ -12,32 +12,56 @@ GaleGEAnalysis currently has 5 primary functions
 1. p1_modify_count_matrix - function will remove samples specified by the user from the count matrix (generally produced by HTSeq) and target file.  The target file is a csv with information about each sample (treatment vs no treatment etc).  This step is not necessary and can be skipped. Results in folder p1_modified_count_matrix_results/ in working directory. Samples to remove must be specified in a csv or txt file.
 2. s1_normalize_raw_counts - function will normalize counts using limma and the trimmed mean of M-values (TMM)  normalization method.  The main inputs needed are the count file from htseq, the target file, the column in the target file specifying whether the sample under went treatment or non treatment (target_column).  Other options are provided here as to whether to filter out genes that have low counts across all samples and to account for a batch effect (batch_column).  All results will be outputed to in a folder named s1_norm_raw_count_results/ in your working directory.
 3. s2_feature_reduction - function will perform a variety of feature reduction alorithms on the normalized count data. As a default as long as you are in the same folder that you ran the s1_normalize_raw_counts step the default count file is ./s1_norm_raw_count_results/1.norm_matrix.txt.  If this file is located elsewhere you will have to specify its location in the countfile parameter.  Additionally, if you didn't run p1_modify_count_matrix you will have to specify the lcoation of the target file with the targetfile parameter in this funtion.  Finally, the user must specify the columns in the target file to label samples by in the pca and umap reduction plots with the target_columns parameter (must have 2 columns in vector format (i.e c(2,5))). Output will go to folder s2_feature_reduction in your working directory. (Note: this is not a ncessary step and can be skipped)
-4. s3_DE_analysis - function will perform the DE analysis.  Like in step s2_feature_reduction specify count and target files in the same manner.  Additionaly user will need to generate matrix file which tells the pipeline what samples to do the DE analysis on.  See example MATRIXEXAMPLE.txt tells which treatments vs non treatments to compare to each other. Output files from this step will be stored in folder s3_DE_analysis_results/. IMPORTANT OUTPUT FILES
+4. s3_DE_analysis - function will perform the DE analysis.  Like in step s2_feature_reduction specify count and target files in the same manner.  Additionaly user will need to generate matrix file which tells the pipeline what samples to do the DE analysis on.  See example MATRIXEXAMPLE.txt tells which treatments vs non treatments to compare to each other. Output files from this step will be stored in folder s3_DE_analysis_results/. IMPORTANT OUTPUT FILES:
+
     3.All_LFC.txt - contains log fold changes for all genes for each comparison in the matrix file 
+
     3.All_LFC_HGNC.txt - contains log fold changes for all genes for each comparison in the matrix file with HGNC gene labels 
+
     3.All_Pvalues.txt - contains P values for all genes for each comparison in the matrix file 
+
     3.All_Pvalues_HGNC.txt - contains P values for all genes for each comparison in the matrix file with HGNC gene labels 
+
     3.All_tvalues.txt - contains t values for all genes for each comparison in the matrix file 
+
     3.All_tvalues_HGNC.txt - contains t values for all genes for each comparison in the matrix file with HGNC gene labels 
+
     3.Significant_separate_LFC.csv - contains log fold for significant differentially expressed genes at atleast in one comparison 
+
     3.Significant_separate_LFC_HGNC_AV.csv - contains log fold for significant differentially expressed genes at atleast in one comparison with HGNC gene labels (AV means that genes with the same HGNC labels are averaged)
+
     3.Significant_separate_Pvalues.csv - contains p values for significant differentially expressed genes at atleast in one comparison 
+
     3.Significant_separate_Pvalues_HGNC_AV.csv - contains p values for significant differentially expressed genes at atleast in one comparison with HGNC gene labels (AV means that genes with the same HGNC labels are averaged)
+
     3.Significant_separate_tvalues.csv - contains t values for significant differentially expressed genes at atleast in one comparison 
+
     3.Significant_separate_tvalues_HGNC_AV.csv - contains t values for significant differentially expressed genes at atleast in one comparison with HGNC gene labels (AV means that genes with the same HGNC labels are averaged)
+
     3.heatmap_djn.png - heatmap of log fold change values of genese that are significantly differentially expressed at atleast one comparison.
     enrichfiles/ - this folder contains list of rank files that are used in step s4_gene_enrichment_analysis
+
         *_sig4GSEA.rnk - contain list of significant differnetially expressed genes and log fold change values at given comparison to be used for GSEA analysis in other programs such as WebGestalt
+
         *_all4GSEA.rnk - contain list of all genes and log fold change values at given comparison to be used for GSEA analysis in other programs such as WebGestalt     
 5. s4_gene_enrichment_analysis - function will perform over representation analysis (ORA) on genes significantly expressed identified in step s3_DE_anlysis.  Step 3 clusters these genes according to expression patterns (see heatmap generated in step s3_DE_anlysis) into modules.  ORA is done on each module.  If user wants to look at ORA of a specific comparison specify the comparison in the comparison option of the s4_gene_enrichment_analysis function.  Also the user can input their own rank file and perform ORA on that instead of gene lists in step s3_DE_anlysis (see examples below). For each comparison an output folder will be generated with a number of output files such as:
+
     over_enrich_barplotall_ge.png - bar plot of significantly enriched GO terms using all differentially expressed genes
+
     over_enrich_barplotup_ge.png - bar plot of significantly enriched GO terms using up regulated differentially expressed genes
+
     over_enrich_barplotdown_ge.png - bar plot of significantly enriched GO terms using down regulated differentially expressed genes
+
     over_enrich_cneplotall_ge.png - cnet plot (network) of significantly enriched GO terms using all differentially expressed genes
+
     over_enrich_cneplotup_ge.png - cnet plot (network) of significantly enriched GO terms using up regulated differentially expressed genes
+
     over_enrich_cneplotdown_ge.png - cnet plot (network) of significantly enriched GO terms using down regulated differentially expressed genes
+
     *all_ora_genes.csv tables of genes and corresponding log fold changes in GO terms when all differentially expresed genes were used for analysis
+
     *up_ora_genes.csv tables of genes and corresponding log fold changes in GO terms when up regulated differentially expresed genes were used for analysis
+
     *down_ora_genes.csv tables of genes and corresponding log fold changes in GO terms when down regulated differentially expresed genes were used for analysis
 
 ## Example of pipeline run
