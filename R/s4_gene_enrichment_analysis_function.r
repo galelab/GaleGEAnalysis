@@ -137,6 +137,7 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             ego        <- run_over_enrichment(genenames, go_enrich_type=go_enrich_type)
 
         }
+        ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")    
 
         ego_dim <- dim(as.data.frame(ego))
         if (ego_dim[1]!=0) { 
@@ -144,7 +145,7 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             ggsave(file.path(results_path, paste0('over_enrich_cnetplotall_',base_file_name)), dpi=figres)
             barplot(ego, showCategory=NumTopGoTerms)
             ggsave(file.path(results_path, paste0('over_enrich_barplotall_',base_file_name)), width = 10, height = 8, dpi=figres)
-            extract_genesego(ego, genes, results_path, enrich_type='ora', direction='all', NumGOterms=NumTopGoTerms)
+            extract_genesego(ego, genes, results_path, ensembl, enrich_type='ora', direction='all', NumGOterms=NumTopGoTerms)
             write.table(as.data.frame(ego), file=file.path(results_path, paste0('total_enrichment_all.csv')))
         } else { 
             print ('WARNING: not enough data to generate cnetplot for all differentially expressed genes over enrichment')
@@ -156,7 +157,7 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             ggsave(file.path(results_path, paste0('over_enrich_cnetplotup_',base_file_name)), dpi=figres)
             barplot(egoup, showCategory=NumTopGoTerms)
             ggsave(file.path(results_path, paste0('over_enrich_barplotup_',base_file_name)), width = 10, height = 8, dpi=figres)
-            extract_genesego(egoup, genes, results_path, enrich_type='ora', direction='up', NumGOterms=NumTopGoTerms)
+            extract_genesego(egoup, genes, results_path, ensembl, enrich_type='ora', direction='up', NumGOterms=NumTopGoTerms)
             write.table(as.data.frame(egoup), file=file.path(results_path, paste0('total_enrichment_up.csv')))
         } else { 
             print ('WARNING: not enough data to generate cnetplot for upregulated genes over enrichment')
@@ -168,7 +169,7 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             ggsave(file.path(results_path, paste0('over_enrich_cnetplotdown_',base_file_name)), dpi=figres)
             barplot(egodown, showCategory=NumTopGoTerms)
             ggsave(file.path(results_path, paste0('over_enrich_barplotdown_',base_file_name)), width = 10, height = 8, dpi=figres)
-            extract_genesego(egodown, genes, results_path, enrich_type='ora', direction='down', NumGOterms=NumTopGoTerms)
+            extract_genesego(egodown, genes, results_path, ensembl, enrich_type='ora', direction='down', NumGOterms=NumTopGoTerms)
             write.table(as.data.frame(egodown), file=file.path(results_path, paste0('total_enrichment_down.csv')))
         } else { 
             print ('WARNING: not enough data to generate cnetplot for downregulated genes over enrichment')
@@ -213,9 +214,8 @@ run_over_enrichment<-function(genes,  go_enrich_type, universe=FALSE) {
 
 }
 
-extract_genes <- function(enrichment, rnk, results_path, enrich_type='ora', NumGOterms=10) {
+extract_genes <- function(enrichment, rnk, results_path, ensembl, enrich_type='ora', NumGOterms=10) {
 
-    ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")    
     
     for(i in 1:NumGOterms) {
     
