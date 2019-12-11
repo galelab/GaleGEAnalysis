@@ -12,3 +12,23 @@ License: What license it uses
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
+Imports:
+    AnnotationHub,
+    Biobase,
+    ExpressionNormalizationWorkflow,
+    Rtsne,
+    WGCNA,
+    biomaRt,
+    clusterProfiler,
+    data.table,
+    dynamicTreeCut,
+    edgeR,
+    factoextra,
+    ggplot2,
+    gplots,
+    limma,
+    org.Hs.eg.db,
+    png,
+    stats,
+    stringr,
+    umap
