@@ -9,7 +9,7 @@ s2_feature_reduction(
   targetfile = "./p1_modified_count_matrix_results/targets_mod.csv",
   target_columns = c(2, 5),
   figres = 100,
-  pcva = TRUE,
+  pcva = FALSE,
   pca = TRUE,
   UMAP = TRUE,
   tsne = TRUE,

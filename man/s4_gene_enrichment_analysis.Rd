@@ -5,41 +5,47 @@
 \title{s4 gene enrichment analysis}
 \usage{
 s4_gene_enrichment_analysis(
-  DEgenes = "./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv",
   go_enrich_type = "BP",
+  universe = TRUE,
+  DEgenes = FALSE,
+  log_values_column = FALSE,
+  rnkfile = FALSE,
   result_folder = FALSE,
-  gene_name_column = 3,
-  log_values_column = 7,
-  pvalue = 0.1,
-  NumTopGoTerms = 10,
+  comparison = FALSE,
+  modules = TRUE,
+  NumTopGoTerms = 30,
   figres = 300,
   base_file_name = "ge.png"
 )
 }
 \arguments{
-\item{DEgenes}{file containg log fold change for DE genes (default ./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv)}
-
 \item{go_enrich_type}{type of GO enrichment to do (BP, CC, or MF) (default BP)}
+
+\item{universe}{Will specify whether you want to use the whole genome as background (FALSE) or set of total expressed genes(TRUE)}
+
+\item{DEgenes}{file containg log fold change for DE genes (default FALSE, needs to be given with log_values_column if used)}
+
+\item{rnkfile}{file containing list of users own genes (not generated in step s3).  Must be in rank file format (gene name & logfold value seperated by tab)}
 
 \item{result_folder}{user specified output folder (default is s4_gene_enrichment_results)}
 
-\item{gene_name_column}{column in DEgenes file with HGNC symbols (default 3)}
+\item{comparison}{specify name of time point comparison to perform over enrichment analysis and GSEA}
 
-\item{log_values_column}{column with log fold change values for GSEA (default 7)}
-
-\item{pvalue}{adjusted pvalue cutoff (default 0.1)}
+\item{modules}{perform over enrichment analysis on modules generated in step s3}
 
 \item{NumTopGoTerms}{top GO terms to show (default 10)}
 
 \item{figres}{resolution of output figures (default 300)}
 
 \item{base_file_name}{name to save files under (default ge.png)}
+
+\item{log_fold_column}{column to pull from DEgenes}
 }
 \description{
 This function runs gene enrichment analysis
 }
 \examples{
-s4_gene_enrichment_analysis(DEgenes='./s3_DE_results/3.ExpressMatrix_separate_LFC_HGNC_AV.csv', go_enrich_type='BP', gene_name_column=3, log_values_column=4, pvalue=0.05, NumbTopGoTerms=10)
+s4_gene_enrichment_analysis(DEgenes=FALSE, go_enrich_type='BP', log_values_column=FALSE, modules=TRUE, pvalue=0.05, qvalue=0.05, NumTopGoTerms=30)
 }
 \keyword{analysis}
 \keyword{enrichment}
