@@ -24,7 +24,6 @@
 #' @export
 #' @examples
 #' s4_gene_enrichment_analysis(DEgenes=FALSE, go_enrich_type='BP', log_values_column=FALSE, modules=TRUE, pvalue=0.05, qvalue=0.05, NumTopGoTerms=30)
-#' @param go_enrich_type type of GO enrichment to do (BP, CC, or MF) (default BP)
 
 s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgenes=FALSE, log_values_column=FALSE, rnkfile=FALSE, result_folder=FALSE, comparison=FALSE, modules=TRUE, NumTopGoTerms=30, figres=300, base_file_name='ge.png') {
     if (typeof(result_folder) == 'logical') {
