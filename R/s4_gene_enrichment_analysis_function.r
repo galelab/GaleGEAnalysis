@@ -63,7 +63,7 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
         print ('STATUS: Will be using whole genome as background in over enrichment analysis')
     }
     ###Connect to biomart 
-    ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")
+    ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl",  mirror = "useast")
 
     ###Perform over enrichment on modules generating from cluster heatmap in step s3
     if (modules == TRUE) {
