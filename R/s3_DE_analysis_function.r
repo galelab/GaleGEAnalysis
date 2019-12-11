@@ -91,7 +91,6 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
                 DE_HGNC <- avereps(DE_HGNC, ID = DE_HGNC$HGNC.symbol)
                 write.csv(DE_HGNC, file=file.path(results_path, "3.All_Pvalues_HGNC.csv"))
             }            
-            print (typeof(fit$t))
             write.table(fit$t, file=file.path(results_path, "3.All_tvalues.txt"), sep='\t')#, digits=3, method="separate", adjust="BH")
             DE_HGNC <- read.csv(file.path(results_path, "3.All_tvalues.txt"), header = T,row.names = 1, check.names=FALSE,sep = "\t")
             if (typeof(gene_conversion_file) == 'character') {
