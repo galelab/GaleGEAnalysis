@@ -15,6 +15,8 @@
 #' @import gplots 
 #' @import ggplot2
 #' @import data.table
+#' @import plyr
+#' @import dplyr
 #' @examples
 #' s3_DE_analysis(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/target_file.csv', gene_conversion_file='rhesus2human.csv', blocking_column=2, matrixfile='./MATRIX.txt')
  
@@ -174,9 +176,17 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             write.csv(GM_HGNC, file=file.path(results_path,  "3.modules_HGNC.csv"))
             clustermatrix  <- hm_results$clustermatrix
             write.csv(clustermatrix, file=file.path(results_path, "3.Clustered_LFC.csv"))
-            clustermatrixM <- as.matrix(clustermatrix)
-            clustermatrixM_hgnc    <- merge(rhesus2human, clustermatrixM, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
-            write.csv(clustermatrixM_hgnc, file=file.path(results_path,  "3.Clustered_LFC_HGNC.csv"))     
+            # clustermatrixM <- as.matrix(clustermatrix)
+            # clustermatrixM_hgnc    <- merge(clustermatrixM, rhesus2human, by.y='Gene.stable.ID', by.x='row.names',all.X=T,all.Y=T)#, all.X=T,all.Y=T)
+            # clustermatrixM  <- as.data.frame(clustermatrix)
+            # clustermatrixM$Gene.Stable.ID <- rownames(clustermatrixM)
+            # rhesus2human    <- as.data.frame(rhesus2human)
+            # print (head(rhesus2human$Gene.stable.ID))
+            # print (head(clustermatrixM_hgnc))
+            # clustermatrixM$HGNC.symbol <- rhesus2human$HGNC.symbol[match(rhesus2human$Gene.stable.ID, rownames(clustermatrixM))]
+            # clustermatrixM_hgnc    <- inner_join(rhesus2human, clustermatrixM, by='Gene.Stable.ID')
+            # print (head(clustermatrixM_hgnc))
+            # write.csv(clustermatrixM_hgnc, file=file.path(results_path,  "3.Clustered_LFC_HGNC.csv"))     
             vizualize_DE_genes_bp(results, file.path(results_path,'3.barplot_NumDEgenes.png'))
 
         } else { 
