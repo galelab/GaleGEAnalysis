@@ -166,13 +166,17 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             }
 
 
-            global_modules <- vizualize_DE_genes_HM(ExpressMatrixLFC, file.path(results_path, "3.heatmap_djn.png"))
+            hm_results      <- vizualize_DE_genes_HM(ExpressMatrixLFC, file.path(results_path, "3.heatmap_djn.png"))
+            global_modules  <- hm_results$modules
             write.csv(global_modules, file=file.path(results_path, "3.modules.csv"))
             global_modulesM <- as.matrix(global_modules)
-            GM_HGNC <- merge(rhesus2human, global_modulesM, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
+            GM_HGNC         <- merge(rhesus2human, global_modulesM, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
             write.csv(GM_HGNC, file=file.path(results_path,  "3.modules_HGNC.csv"))
-
-
+            clustermatrix  <- hm_results$clustermatrix
+            write.csv(clustermatrix, file=file.path(results_path, "3.Clustered_LFC.csv"))
+            clustermatrixM <- as.matrix(clustermatrix)
+            clustermatrixM_hgnc    <- merge(rhesus2human, clustermatrixM, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
+            write.csv(clustermatrixM_hgnc, file=file.path(results_path,  "3.Clustered_LFC_HGNC.csv"))     
             vizualize_DE_genes_bp(results, file.path(results_path,'3.barplot_NumDEgenes.png'))
 
         } else { 

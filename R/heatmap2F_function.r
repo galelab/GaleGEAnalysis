@@ -159,6 +159,7 @@ heatmap.F.4 = function(dataM,
 				 main=main)
   
   names(rowcol) = rownames(dataM)
-  # write.table(hm, file.path('./s3_DE_results/', '3.Clustered_LFC.txt'), sep='\t')
-  return(rowcol[hm$rowInd])
+  write.table(t(hm$carpet), file.path('./s3_DE_results/', '3.Clustered_LFC.txt'), sep='\t')
+  # print (rowcol[hm$rowInd])
+  return(list(modules=rowcol[hm$rowInd], clustermatrix=t(hm$carpet)))
 }
