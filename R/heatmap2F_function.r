@@ -142,7 +142,7 @@ heatmap.F.4 = function(dataM,
                  hclustfun=fh,
                  distfun=fd,
                  key.title=NA,
-                 keysize=1,
+                 keysize=1.5,
                  key.xlab=keytitle,
                  trace='none',
                  density.info="none",
@@ -152,12 +152,13 @@ heatmap.F.4 = function(dataM,
                  Colv=Colv,
                  cexCol=1.5,
                  cexRow=0.5,
-				 scale=scale,
+			         	 scale=scale,
                  dendrogram=dendrogram,
                  RowSideColors=rowcol,
                  symbreaks=symbreaks,
 				 main=main)
   
   names(rowcol) = rownames(dataM)
+  # write.table(hm, file.path('./s3_DE_results/', '3.Clustered_LFC.txt'), sep='\t')
   return(rowcol[hm$rowInd])
 }
