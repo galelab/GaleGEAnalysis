@@ -106,6 +106,8 @@ s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=
             # return (results_norm)
         } else { 
             print ('WARNING: error with design matrix... rethink how it is being set up')
+            print (paste0('WARNING: full rank check is ', is.fullrank(design)))
+            print (paste0('WARNING: nonEstimatable check is ', is.null(nonEstimable(design))))
 
         }
 
