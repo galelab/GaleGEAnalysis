@@ -41,10 +41,10 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
         }
     } else { 
         results_path      <- generate_folder(result_folder)
-        if (typeof(comparison) == 'logical') { 
+        if (typeof(comparison) == 'character') { 
             results_path  <- generate_folder(paste0(result_folder, '/',comparison))
             unlink(paste0(results_path,'/*'))   
-        } else { 
+        } else if (typeof(log_values_column) != 'logical') { 
             results_path  <- generate_folder(paste0(result_folder,'/column',log_values_column))
             unlink(paste0(results_path,'/*'))   
         }
@@ -125,7 +125,6 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
         # genelistnamesall    <-names(geneListall)
         # geneListall         <- sort(geneListall, decreasing=TRUE)
 
-        print ('STATUS: running over enrichment analysis')
         if (isTRUE(universe)) { 
             print ('STATUS: running over enrichment analysis with expressed genes as background')
             egoup      <- run_over_enrichment(genenames_up, go_enrich_type=go_enrich_type, universe=all_universe_genes)
