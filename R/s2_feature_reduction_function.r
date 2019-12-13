@@ -60,27 +60,6 @@ vizualize_feature_reduction_data <- function(data, labels, results_path, base_fi
     dev.off()
 }
 
-pvca_fun <- function(exprs, covrts, results_path, base_file_name, target_columns, figres=100) {
-    #Principal Component analysis of variation (PVCA)
-
-    inpData <- expSetobj(exprs, covrts)
-    cvrts_eff_var <- colnames(covrts) ## Set the covariates whose effect size on the data needs to be calculated
- 
-    # for (val in cvrts_eff_var) {
-    #     val1 <- lapply(val, tolower)
-    #     test <- grep('id', val1)
-    #     if (length(test) == 1) { 
-    #     } else { 
-    #         cvrts_eff_var_f <- append(cvrts_eff_var_f, val, after = length(cvrts_eff_var_f))
-    #     }
-    # }
-    cvrts_eff_var <- cvrts_eff_var[-1]
-    pct_thrsh <- 0.75
-    png(file.path(results_path, paste0('2.pvca_', base_file_name)), res = figres)
-    pvcAnaly(inpData, pct_thrsh, cvrts_eff_var)
-    dev.off()
-}
-
 
 pca_fun<-function(exprs, labels, results_path, base_file_name, target_columns, figres=100) {
     #Run PCA/SVD reduction 
