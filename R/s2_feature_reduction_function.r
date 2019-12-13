@@ -5,7 +5,6 @@
 #' @param targetfile target file.
 #' @param target_columns columns from the target file to label samples on the pca/umap plots (has to be 2)
 #' @param figres resolution at which to output figures (default is 300).
-#' @param pcva run principal component variance analysis (default set to TRUE)
 #' @param pca run principal component analysis (and singular vector decomposition) (default set to TRUE)
 #' @param UMAP run Uniform Manifold Aproximation Projection (default set to TRUE)
 #' @param base_file_name file name for all figures
@@ -22,7 +21,7 @@
 #' @examples
 #' s2_feature_reduction(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt',  targetfile='./p1_modified_count_matrix_results/target_file.csv', target_columns=c(2,5), base_file_name='vnorm.png')
 
-s2_feature_reduction <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/targets_mod.csv', target_columns=c(2,5), figres=100, pcva=FALSE, pca=TRUE, UMAP=TRUE, tsne=TRUE, base_file_name='vnorm.png') { 
+s2_feature_reduction <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/targets_mod.csv', target_columns=c(2,5), figres=100, pca=TRUE, UMAP=TRUE, tsne=TRUE, base_file_name='vnorm.png') { 
     pdf(NULL)
     files <- loadfiles(count_file=countfile, target_file=targetfile)
     results_path <- generate_folder('s2_feature_reduction_results')
@@ -32,11 +31,6 @@ s2_feature_reduction <- function(countfile='./s1_norm_raw_counts_results/1.norm_
     if (all.equal(rownames(files$targets), colnames(files$counts)) != TRUE) { 
         print ('WARNING: order of samples in target and count file is not the same, this needs fixing before code can proceed')
     } else {
-        if (pcva == TRUE) {
-            print ('STATUS: Running principal component variance analysis')
-            pvca_fun(files$counts, files$target, results_path, base_file_name, figres)
-        }
-        
         if (pca == TRUE) {
             print ('STATUS: Running PCA feature reduction')
             pca_fun(files$counts, files$target, results_path, base_file_name, target_columns, figres)
