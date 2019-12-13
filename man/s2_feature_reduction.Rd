@@ -9,7 +9,6 @@ s2_feature_reduction(
   targetfile = "./p1_modified_count_matrix_results/targets_mod.csv",
   target_columns = c(2, 5),
   figres = 100,
-  pcva = FALSE,
   pca = TRUE,
   UMAP = TRUE,
   tsne = TRUE,
@@ -24,8 +23,6 @@ s2_feature_reduction(
 \item{target_columns}{columns from the target file to label samples on the pca/umap plots (has to be 2)}
 
 \item{figres}{resolution at which to output figures (default is 300).}
-
-\item{pcva}{run principal component variance analysis (default set to TRUE)}
 
 \item{pca}{run principal component analysis (and singular vector decomposition) (default set to TRUE)}
 
