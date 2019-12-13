@@ -175,7 +175,8 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             GM_HGNC         <- merge(rhesus2human, global_modulesM, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
             write.csv(GM_HGNC, file=file.path(results_path,  "3.modules_HGNC.csv"))
             clustermatrix  <- hm_results$clustermatrix
-            write.csv(clustermatrix, file=file.path(results_path, "3.Clustered_LFC.csv"))
+            clustermatrix   <- clustermatrix[order(nrow(clustermatrix):1),] #invert row order
+            write.csv(clustermatrix, file=file.path(results_path, "3.Clustered_LFC.csv"), quote=FALSE)
             # clustermatrixM <- as.matrix(clustermatrix)
             # clustermatrixM_hgnc    <- merge(clustermatrixM, rhesus2human, by.y='Gene.stable.ID', by.x='row.names',all.X=T,all.Y=T)#, all.X=T,all.Y=T)
             # clustermatrixM  <- as.data.frame(clustermatrix)
