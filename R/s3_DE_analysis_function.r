@@ -142,9 +142,10 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
                 results_single <-  results[, c(i)]
                 results_single <- results_single[(results_single[,1] != 0),]
                 significantgenes <- fit$coefficients[rownames(results_single), i]
+                names(significantgenes) <- rownames(results_single)
                 allgenes         <- fit$coefficients[, i]
                 if (typeof(gene_conversion_file) == 'character') {
-                    if (length(significantgenes)>1) {
+                    if (length(significantgenes)>0) {
                         sig_HGNC <- merge(rhesus2human, significantgenes, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
                         sig_HGNC <- sig_HGNC[ , !(names(sig_HGNC) %in% c('Gene.stable.ID'))]
                         sig_HGNC <- avereps(sig_HGNC, ID = sig_HGNC$HGNC.symbol)
@@ -152,7 +153,7 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
                         sig_HGNCnodup           <- sig_HGNC[!duplicated(sig_HGNC[,2]), ]
                         write.table(sig_HGNCnodup, file=file.path(results_path2, paste0(i,'_sig4GSEA.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
                     } else { 
-                        print (paste0('WARNING: comparison ', i, ' only has 1 or less significantly different gene therefore not generating enrichment file'))
+                        print (paste0('WARNING: comparison ', i, ' only has 0 significantly different gene therefore not generating enrichment file'))
                     }
                     all_HGNC <- merge(rhesus2human, allgenes, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
                     all_HGNC <- all_HGNC[ , !(names(all_HGNC) %in% c('Gene.stable.ID'))]
@@ -162,10 +163,10 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
                     write.table(all_HGNCnodup, file=file.path(results_path2, paste0(i,'_all4GSEA.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
 
                 } else { 
-                    if (length(significantgenes)>1) {
+                    if (length(significantgenes)>0) {
                         write.table(significantgenes, file=file.path(results_path2, paste0(i,'_sig.rnk')), col.names = FALSE, sep='\t', quote=FALSE)
                     } else { 
-                        print (paste0('WARNING: comparison ', i, ' only has 1 or less significantly different gene therefore not generating enrichment file'))                        
+                        print (paste0('WARNING: comparison ', i, ' only has 0 significantly different gene therefore not generating enrichment file'))                        
                     }
                     write.table(allgenes, file=file.path(results_path2, paste0(i,'_all.rnk')), col.names = FALSE, sep='\t', quote=FALSE)
                 }   
