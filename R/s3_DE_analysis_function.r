@@ -65,12 +65,9 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             print ('STATUS: getting DE genes...')
  
             matrix_contrast <- scan(matrixfile,  character(), quote = "")
-
             cont.matrix <- makeContrasts(contrasts=matrix_contrast, levels=design)
-
             fit <- contrasts.fit(fit, cont.matrix)
             fit <-eBayes(fit)
-
             results <- decideTests(fit, lfc=log2(logfoldchange), method="separate", adjust.method="BH", p.value=pvalue)
             a <- vennCounts(results)
 
@@ -90,7 +87,7 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
                 DE_HGNC <- merge(rhesus2human, DE_HGNC, by.x='Gene.stable.ID', by.y='row.names')
                 DE_HGNC <- avereps(DE_HGNC, ID = DE_HGNC$HGNC.symbol)
                 write.csv(DE_HGNC, file=file.path(results_path, "3.All_Pvalues_HGNC.csv"))
-            }            
+            }
             write.table(fit$t, file=file.path(results_path, "3.All_tvalues.txt"), sep='\t')#, digits=3, method="separate", adjust="BH")
             DE_HGNC <- read.csv(file.path(results_path, "3.All_tvalues.txt"), header = T,row.names = 1, check.names=FALSE,sep = "\t")
             if (typeof(gene_conversion_file) == 'character') {
@@ -118,7 +115,7 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             sigMask <- subset(sigMask, rowSums(sigMask) != 0)
             write.csv(ExpressMatrixtvalue, file=file.path(results_path,"3.Significant_separate_tvalues.csv"))            
             convert2HGNC(gene_conversion_file, "3.Significant_separate_tvalues.csv", "3.Significant_separate_tvalues_HGNC_AV.csv", results_path)
-    
+
              ##SIGNIFICANT P values
             dataMatrix <- fit$p.value # Extract results of differential expression #LogFold change is the coefficients
             sigMask <- dataMatrix * (results**2) # 1 if significant, 0 otherwise
@@ -126,34 +123,41 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             sigMask <- subset(sigMask, rowSums(sigMask) != 0)
             write.csv(ExpressMatrixPvalue, file=file.path(results_path,"3.Significant_separate_Pvalues.csv"))         
             convert2HGNC(gene_conversion_file, "3.Significant_separate_Pvalues.csv", "3.Significant_separate_Pvalues_HGNC_AV.csv", results_path)            
- 
+
             results_path2 <- generate_folder('s3_DE_results/enrichfiles')
             unlink('./s3_DE_results/enrichfiles/*')
+            print('STATUS CHECK10')
 
-            counter <- 0
             for (i in colnames(fit$coefficients)) {
-                counter <- counter + 1
+
                 results_single <-  results[, c(i)]
                 results_single <- results_single[(results_single[,1] != 0),]
-                significantgenes <- fit$coefficients[rownames(results_single), counter]
-                allgenes         <- fit$coefficients[, counter]
+                significantgenes <- fit$coefficients[rownames(results_single), i]
+                allgenes         <- fit$coefficients[, i]
                 if (typeof(gene_conversion_file) == 'character') {
-                    sig_HGNC <- merge(rhesus2human, significantgenes, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
-                    sig_HGNC <- sig_HGNC[ , !(names(sig_HGNC) %in% c('Gene.stable.ID'))]
-                    sig_HGNC <- avereps(sig_HGNC, ID = sig_HGNC$HGNC.symbol)
-
+                    if (length(significantgenes)>1) {
+                        sig_HGNC <- merge(rhesus2human, significantgenes, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
+                        sig_HGNC <- sig_HGNC[ , !(names(sig_HGNC) %in% c('Gene.stable.ID'))]
+                        sig_HGNC <- avereps(sig_HGNC, ID = sig_HGNC$HGNC.symbol)
+                        write.table(sig_HGNC, file=file.path(results_path2, paste0(i,'_sig.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
+                        sig_HGNCnodup           <- sig_HGNC[!duplicated(sig_HGNC[,2]), ]
+                        write.table(sig_HGNCnodup, file=file.path(results_path2, paste0(i,'_sig4GSEA.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
+                    } else { 
+                        print (paste0('WARNING: comparison ', i, ' only has 1 or less significantly different gene therefore not generating enrichment file'))
+                    }
                     all_HGNC <- merge(rhesus2human, allgenes, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
                     all_HGNC <- all_HGNC[ , !(names(all_HGNC) %in% c('Gene.stable.ID'))]
                     all_HGNC <- avereps(all_HGNC, ID = all_HGNC$HGNC.symbol)
-                    write.table(sig_HGNC, file=file.path(results_path2, paste0(i,'_sig.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
                     write.table(all_HGNC, file=file.path(results_path2, paste0(i,'_all.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
-
                     all_HGNCnodup           <- all_HGNC[!duplicated(all_HGNC[,2]), ]
-                    sig_HGNCnodup           <- sig_HGNC[!duplicated(sig_HGNC[,2]), ]
-                    write.table(sig_HGNCnodup, file=file.path(results_path2, paste0(i,'_sig4GSEA.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
                     write.table(all_HGNCnodup, file=file.path(results_path2, paste0(i,'_all4GSEA.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
+
                 } else { 
-                    write.table(significantgenes, file=file.path(results_path2, paste0(i,'_sig.rnk')), col.names = FALSE, sep='\t', quote=FALSE)
+                    if (length(significantgenes)>1) {
+                        write.table(significantgenes, file=file.path(results_path2, paste0(i,'_sig.rnk')), col.names = FALSE, sep='\t', quote=FALSE)
+                    } else { 
+                        print (paste0('WARNING: comparison ', i, ' only has 1 or less significantly different gene therefore not generating enrichment file'))                        
+                    }
                     write.table(allgenes, file=file.path(results_path2, paste0(i,'_all.rnk')), col.names = FALSE, sep='\t', quote=FALSE)
                 }   
 
@@ -164,7 +168,6 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
                 # P.values      <-p.adjust(ExpressMatrix, method="BH");
 
             }
-
 
             hm_results      <- vizualize_DE_genes_HM(ExpressMatrixLFC, file.path(results_path, "3.heatmap_djn.png"))
             global_modules  <- hm_results$modules
