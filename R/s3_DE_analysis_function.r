@@ -71,7 +71,17 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             results <- decideTests(fit, lfc=log2(logfoldchange), method="separate", adjust.method="BH", p.value=pvalue)
             a <- vennCounts(results)
 
-            write.fit(fit, file=file.path(results_path, "3.All_LFC.txt"), digits=3, method="separate", adjust="BH")
+            write.fit(fit, file=file.path(results_path, "3.All_data.txt"), digits=3, method="separate", adjust="BH")
+            DE_HGNC <- read.csv(file.path(results_path, "3.All_data.txt"), header = T,row.names = 1, check.names=FALSE,sep = "\t")
+            if (typeof(gene_conversion_file) == 'character') {
+                rhesus2human <- read.csv(file=gene_conversion_file, header=TRUE, stringsAsFactors = FALSE)
+                DE_HGNC <- merge(rhesus2human, DE_HGNC, by.x='Gene.stable.ID', by.y='row.names')
+                DE_HGNC <- avereps(DE_HGNC, ID = DE_HGNC$HGNC.symbol)
+                write.csv(DE_HGNC, file=file.path(results_path, "3.All_data_HGNC.csv"))
+            }
+
+
+            write.table(fit$coefficients, file=file.path(results_path, "3.All_LFC.txt"), sep='\t')#, digits=3, method="separate", adjust="BH")
             DE_HGNC <- read.csv(file.path(results_path, "3.All_LFC.txt"), header = T,row.names = 1, check.names=FALSE,sep = "\t")
             if (typeof(gene_conversion_file) == 'character') {
                 rhesus2human <- read.csv(file=gene_conversion_file, header=TRUE, stringsAsFactors = FALSE)
@@ -126,7 +136,6 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
 
             results_path2 <- generate_folder('s3_DE_results/enrichfiles')
             unlink('./s3_DE_results/enrichfiles/*')
-            print('STATUS CHECK10')
 
             for (i in colnames(fit$coefficients)) {
 
