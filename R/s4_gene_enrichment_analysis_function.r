@@ -12,7 +12,8 @@
 #' @param comparison specify name of time point comparison to perform over enrichment analysis and GSEA 
 #' @param modules perform over enrichment analysis on modules generated in step s3
 #' @param NumTopGoTerms top GO terms to show (default 10)
-#' @param figres resolution of output figures (default 300) 
+#' @param figres resolution of output figures (default 300)
+#' @param ensembl_retrieve whether or not to retrieve gene name descriptions
 #' @param base_file_name name to save files under (default ge.png)
 #' @import clusterProfiler 
 #' @import org.Hs.eg.db
@@ -25,7 +26,7 @@
 #' @examples
 #' s4_gene_enrichment_analysis(DEgenes=FALSE, go_enrich_type='BP', log_values_column=FALSE, modules=TRUE, pvalue=0.05, qvalue=0.05, NumTopGoTerms=30)
 
-s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgenes=FALSE, log_values_column=FALSE, rnkfile=FALSE, result_folder=FALSE, comparison=FALSE, modules=TRUE, NumTopGoTerms=30, figres=300, base_file_name='ge.png') {
+s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgenes=FALSE, log_values_column=FALSE, rnkfile=FALSE, result_folder=FALSE, comparison=FALSE, modules=TRUE, NumTopGoTerms=30, figres=300, ensembl_retrieve=TRUE, base_file_name='ge.png') {
     if (typeof(result_folder) == 'logical') {
         results_path      <- generate_folder('s4_gene_enrichment_results')
         if (typeof(comparison) == 'character') { 
@@ -61,9 +62,12 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
     } else { 
         print ('STATUS: Will be using whole genome as background in over enrichment analysis')
     }
-    ###Connect to biomart 
-    ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl",  mirror = "useast")
-
+    ###Connect to biomart
+    if (ensembl_retrieve==TRUE) {
+        ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl",  mirror = "useast")
+    } else {
+        ensembl <- FALSE
+    }
     ###Perform over enrichment on modules generating from cluster heatmap in step s3
     if (modules == TRUE) {
         module           <- read.csv('./s3_DE_results/3.modules_HGNC.csv', row.names = 1)
@@ -81,7 +85,9 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             write.table(as.data.frame(ego), file=file.path(results_path_mod, paste0('total_enrichment_',m,'.csv')))
             barplot(ego, showCategory=NumTopGoTerms)
             ggsave(file.path(results_path_mod, paste0('over_enrich_',m,'_',base_file_name)), width = 10, height = 8, dpi=figres)
-            extract_genesego(ego, rnk=FALSE, results_path_mod, ensembl, enrich_type='ora', direction=m, NumGOterms=NumTopGoTerms)
+            if (ensembl_retrieve == TRUE) { 
+                extract_genesego(ego, rnk=FALSE, results_path_mod, ensembl, enrich_type='ora', direction=m, NumGOterms=NumTopGoTerms)
+            }
         }
     }
 
@@ -144,7 +150,9 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             ggsave(file.path(results_path, paste0('over_enrich_cnetplotall_',base_file_name)), dpi=figres)
             barplot(ego, showCategory=NumTopGoTerms)
             ggsave(file.path(results_path, paste0('over_enrich_barplotall_',base_file_name)), width = 10, height = 8, dpi=figres)
-            extract_genesego(ego, genes, results_path, ensembl, enrich_type='ora', direction='all', NumGOterms=NumTopGoTerms)
+            if (ensembl_retrieve==TRUE) {
+                extract_genesego(ego, genes, results_path, ensembl, enrich_type='ora', direction='all', NumGOterms=NumTopGoTerms)
+            }
             write.table(as.data.frame(ego), file=file.path(results_path, paste0('total_enrichment_all.csv')))
         } else { 
             print ('WARNING: not enough data to generate cnetplot for all differentially expressed genes over enrichment')
@@ -156,7 +164,9 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             ggsave(file.path(results_path, paste0('over_enrich_cnetplotup_',base_file_name)), dpi=figres)
             barplot(egoup, showCategory=NumTopGoTerms)
             ggsave(file.path(results_path, paste0('over_enrich_barplotup_',base_file_name)), width = 10, height = 8, dpi=figres)
-            extract_genesego(egoup, genes, results_path, ensembl, enrich_type='ora', direction='up', NumGOterms=NumTopGoTerms)
+            if (ensembl_retrieve==TRUE) {
+                extract_genesego(egoup, genes, results_path, ensembl, enrich_type='ora', direction='up', NumGOterms=NumTopGoTerms)
+            }
             write.table(as.data.frame(egoup), file=file.path(results_path, paste0('total_enrichment_up.csv')))
         } else { 
             print ('WARNING: not enough data to generate cnetplot for upregulated genes over enrichment')
@@ -168,7 +178,9 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             ggsave(file.path(results_path, paste0('over_enrich_cnetplotdown_',base_file_name)), dpi=figres)
             barplot(egodown, showCategory=NumTopGoTerms)
             ggsave(file.path(results_path, paste0('over_enrich_barplotdown_',base_file_name)), width = 10, height = 8, dpi=figres)
-            extract_genesego(egodown, genes, results_path, ensembl, enrich_type='ora', direction='down', NumGOterms=NumTopGoTerms)
+            if (ensembl_retrieve==TRUE) {
+                extract_genesego(egodown, genes, results_path, ensembl, enrich_type='ora', direction='down', NumGOterms=NumTopGoTerms)
+            }
             write.table(as.data.frame(egodown), file=file.path(results_path, paste0('total_enrichment_down.csv')))
         } else { 
             print ('WARNING: not enough data to generate cnetplot for downregulated genes over enrichment')
