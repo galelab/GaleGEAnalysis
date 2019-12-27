@@ -42,6 +42,7 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
         }
     } else { 
         results_path      <- generate_folder(result_folder)
+        unlink(paste0(results_path,'/*')) 
         if (typeof(comparison) == 'character') { 
             results_path  <- generate_folder(paste0(result_folder, '/',comparison))
             unlink(paste0(results_path,'/*'))   
@@ -225,24 +226,24 @@ run_over_enrichment<-function(genes,  go_enrich_type, universe=FALSE) {
 
 }
 
-extract_genes <- function(enrichment, rnk, results_path, ensembl, enrich_type='ora', NumGOterms=10) {
+# extract_genes <- function(enrichment, rnk, results_path, ensembl, enrich_type='ora', NumGOterms=10) {
 
     
-    for(i in 1:NumGOterms) {
+#     for(i in 1:NumGOterms) {
     
-        description <- str_replace(enrichment[i]$Description, '/', '_')
-        print (paste0('STATUS: getting genes in ', description, ' term'))
+#         description <- str_replace(enrichment[i]$Description, '/', '_')
+#         print (paste0('STATUS: getting genes in ', description, ' term'))
 
-        genes <- unlist(strsplit(enrichment[i]$core_enrichment, '/'))
+#         genes <- unlist(strsplit(enrichment[i]$core_enrichment, '/'))
 
-        genedesc <- getBM(attributes=c('external_gene_name', 'description'), filters = 'external_gene_name', values = genes, mart =ensembl)
-        tabl <- data.table(genedesc)
-        tabl1 <- data.table(rnk)
+#         genedesc <- getBM(attributes=c('external_gene_name', 'description'), filters = 'external_gene_name', values = genes, mart =ensembl)
+#         tabl <- data.table(genedesc)
+#         tabl1 <- data.table(rnk)
 
-        genedescfinal <- merge(tabl, tabl1, by.x='external_gene_name', by.y='V1')
-        write.table(genedescfinal, file=file.path(results_path, paste0(description,'_', enrich_type, '_genes.csv')), sep=',', row.names=FALSE)
-     }
-}
+#         genedescfinal <- merge(tabl, tabl1, by.x='external_gene_name', by.y='V1')
+#         write.table(genedescfinal, file=file.path(results_path, paste0(description,'_', enrich_type, '_genes.csv')), sep=',', row.names=FALSE)
+#      }
+# }
 
 extract_genesego <- function(enrichment, rnk, results_path, ensembl, enrich_type='ora', direction='up', NumGOterms=10) {
     
@@ -253,6 +254,15 @@ extract_genesego <- function(enrichment, rnk, results_path, ensembl, enrich_type
         genes <- unlist(strsplit(enrichment[i]$geneID, '/'))
 
         genedesc <- getBM(attributes=c('external_gene_name', 'description'), filters = 'external_gene_name', values = genes, mart =ensembl)
+
+        ###Remove unecessary extra information from description
+        count = 0
+        for (i in genedesc$description) {
+            i <- gsub("\\s+\\[Source\\S+\\s+\\S+$", "", i, perl=TRUE)
+            genedesc$description[count] = i
+             count = count+1
+        }
+
         if (typeof(rnk) != 'logical') {
             tabl <- data.table(genedesc)
             tabl1 <- data.table(rnk)
