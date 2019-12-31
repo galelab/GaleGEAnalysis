@@ -26,7 +26,7 @@
 #' @examples
 #' s4_gene_enrichment_analysis(DEgenes=FALSE, go_enrich_type='BP', log_values_column=FALSE, modules=TRUE, pvalue=0.05, qvalue=0.05, NumTopGoTerms=30)
 
-s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgenes=FALSE, log_values_column=FALSE, rnkfile=FALSE, result_folder=FALSE, comparison=FALSE, modules=TRUE, NumTopGoTerms=30, figres=300, ensembl_retrieve=TRUE, base_file_name='ge.png') {
+s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgenes=FALSE, log_values_column=FALSE, rnkfile=FALSE, result_folder=FALSE, comparison=FALSE, modules=TRUE, NumTopGoTerms=30, figres=300, ensembl_retrieve=TRUE, gene_name_type='SYMBOL', base_file_name='ge.png') {
     if (typeof(result_folder) == 'logical') {
         results_path      <- generate_folder('s4_gene_enrichment_results')
         if (typeof(comparison) == 'character') { 
@@ -78,16 +78,20 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             mod           <-  module[(module[,3] == m),]
             mod           <- mod[!(is.na(mod$HGNC.symbol) | mod$HGNC.symbol==""), ]
             if (isTRUE(universe)) { 
-                ego      <- run_over_enrichment(mod$HGNC.symbol, go_enrich_type=go_enrich_type,  universe=all_universe_genes)
+                ego      <- run_over_enrichment(mod$HGNC.symbol, go_enrich_type=go_enrich_type, gene_name_type=gene_name_type,  universe=all_universe_genes)
             } else { 
-                ego      <- run_over_enrichment(mod$HGNC.symbol, go_enrich_type=go_enrich_type)
+                ego      <- run_over_enrichment(mod$HGNC.symbol, go_enrich_type=go_enrich_type, gene_name_type=gene_name_type)
             }
  
             write.table(as.data.frame(ego), file=file.path(results_path_mod, paste0('total_enrichment_',m,'.csv')))
-            barplot(ego, showCategory=NumTopGoTerms)
-            ggsave(file.path(results_path_mod, paste0('over_enrich_',m,'_',base_file_name)), width = 10, height = 8, dpi=figres)
-            if (ensembl_retrieve == TRUE) { 
-                extract_genesego(ego, rnk=FALSE, results_path_mod, ensembl, enrich_type='ora', direction=m, NumGOterms=NumTopGoTerms)
+            if (is.null(ego)) { 
+                print ('WARNNING: No enrichments found so no output figures or files will be generated')
+            } else { 
+                barplot(ego, showCategory=NumTopGoTerms)
+                ggsave(file.path(results_path_mod, paste0('over_enrich_',m,'_',base_file_name)), width = 10, height = 8, dpi=figres)
+                if (ensembl_retrieve == TRUE) { 
+                    extract_genesego(ego, rnk=FALSE, results_path_mod, ensembl, enrich_type='ora', direction=m, NumGOterms=NumTopGoTerms)
+                }
             }
         }
     }
@@ -134,15 +138,15 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
 
         if (isTRUE(universe)) { 
             print ('STATUS: running over enrichment analysis with expressed genes as background')
-            egoup      <- run_over_enrichment(genenames_up, go_enrich_type=go_enrich_type, universe=all_universe_genes)
-            egodown    <- run_over_enrichment(genenames_down,  go_enrich_type=go_enrich_type, universe=all_universe_genes)
-            ego        <- run_over_enrichment(genenames,  go_enrich_type=go_enrich_type, universe=all_universe_genes)
+            egoup      <- run_over_enrichment(genenames_up, go_enrich_type=go_enrich_type, universe=all_universe_genes, gene_name_type=gene_name_type)
+            egodown    <- run_over_enrichment(genenames_down,  go_enrich_type=go_enrich_type, universe=all_universe_genes, gene_name_type=gene_name_type)
+            ego        <- run_over_enrichment(genenames,  go_enrich_type=go_enrich_type, universe=all_universe_genes, gene_name_type=gene_name_type)
 
         } else { 
             print ('STATUS: running over enrichment analysis with whole genome as background')
-            egoup      <- run_over_enrichment(genenames_up, go_enrich_type=go_enrich_type)
-            egodown    <- run_over_enrichment(genenames_down, go_enrich_type=go_enrich_type)
-            ego        <- run_over_enrichment(genenames, go_enrich_type=go_enrich_type)
+            egoup      <- run_over_enrichment(genenames_up, go_enrich_type=go_enrich_type, gene_name_type=gene_name_type)
+            egodown    <- run_over_enrichment(genenames_down, go_enrich_type=go_enrich_type, gene_name_type=gene_name_type)
+            ego        <- run_over_enrichment(genenames, go_enrich_type=go_enrich_type, gene_name_type=gene_name_type)
 
         }
         ego_dim <- dim(as.data.frame(ego))
@@ -202,12 +206,12 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
     }
 }
 
-run_over_enrichment<-function(genes,  go_enrich_type, universe=FALSE) {
+run_over_enrichment<-function(genes,  go_enrich_type, gene_name_type, universe=FALSE) {
     # print (go_enrich_type)
     if (typeof(universe)!='logical') {
         ego <- enrichGO(genes, universe=universe,
                 OrgDb         = org.Hs.eg.db,
-                keyType       = 'SYMBOL',
+                keyType       = gene_name_type,
                 ont           = go_enrich_type,
                 pAdjustMethod = "BH",
                 pvalueCutoff  = 1,
@@ -216,7 +220,7 @@ run_over_enrichment<-function(genes,  go_enrich_type, universe=FALSE) {
     } else {
         ego <- enrichGO(genes,
                 OrgDb         = org.Hs.eg.db,
-                keyType       = 'SYMBOL',
+                keyType       = gene_name_type,
                 ont           = go_enrich_type,
                 pAdjustMethod = "BH",
                 pvalueCutoff  = 1,
