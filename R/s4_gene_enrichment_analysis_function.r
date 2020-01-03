@@ -260,7 +260,7 @@ extract_genesego <- function(enrichment, rnk, results_path, ensembl, enrich_type
         genedesc <- getBM(attributes=c('external_gene_name', 'description'), filters = 'external_gene_name', values = genes, mart =ensembl)
 
         ###Remove unecessary extra information from description
-        count = 0
+        count = 1
         for (i in genedesc$description) {
             i <- gsub("\\s+\\[Source\\S+\\s+\\S+$", "", i, perl=TRUE)
             genedesc$description[count] = i
