@@ -134,20 +134,19 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             unlink('./s3_DE_results/enrichfiles/*')
 
             for (i in colnames(fit$coefficients)) {
-                results_single   <-  results[, c(i)]
-                results_single   <- results_single[(results_single[,1] != 0),]
-                significantgenes <- fit$coefficients[rownames(results_single), i]
-                names(significantgenes) <- rownames(results_single)
+                dataMarix <- fit$coefficient
+                sigMask <- dataMatrix * (results**2) # 1 if significant, 0 otherwise
+                ExpressMatrixLFC1 <- subset(dataMatrix[,i], sigMask[,i] != 0) # filter for significant genes
                 allgenes         <- fit$coefficients[, i]
                 if (typeof(gene_conversion_file) == 'character') {
-                    if (length(significantgenes)>0) {
-                        sig_HGNC <- merge(rhesus2human, significantgenes, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
+                    if (length(ExpressMatrixLFC1)>0) {
+                        sig_HGNC <- merge(rhesus2human, ExpressMatrixLFC1, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
                         sig_HGNC <- sig_HGNC[ , !(names(sig_HGNC) %in% c('Gene.stable.ID'))]
                         dimensions <- dim(sig_HGNC)
                         if  (dimensions[1] == 0) { 
                             print (paste0('WARNING: no sucessful translations from Ensembl to HGNCs so using ensembl IDs for comparison ', i))
-                            write.table(significantgenes, file=file.path(results_path2, paste0(i,'_sig.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
-                            write.table(significantgenes, file=file.path(results_path2, paste0(i,'_sig4GSEA.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
+                            write.table(ExpressMatrixLFC1, file=file.path(results_path2, paste0(i,'_sig.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
+                            write.table(ExpressMatrixLFC1, file=file.path(results_path2, paste0(i,'_sig4GSEA.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
                         }
                         else { 
                             sig_HGNC <- avereps(sig_HGNC, ID = sig_HGNC$HGNC.symbol)
