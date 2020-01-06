@@ -70,6 +70,7 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             fit <- contrasts.fit(fit, cont.matrix)
             fit <- eBayes(fit)
             results <- decideTests(fit, lfc=log2(logfoldchange), method="separate", adjust.method="BH", p.value=pvalue)
+            write.csv(results, 'temp1.csv')
             a <- vennCounts(results)
             write.fit(fit, file=file.path(results_path, "3.All_data.txt"), digits=3, method="separate", adjust="BH")
             DE_HGNC <- read.csv(file.path(results_path, "3.All_data.txt"), header = T,row.names = 1, check.names=FALSE,sep = "\t")
@@ -111,6 +112,7 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             ##SIGNIFICANT LOGVALUES
             dataMatrix <- fit$coefficients # Extract results of differential expression #LogFold change is the coefficients
             sigMask <- dataMatrix * (results**2) # 1 if significant, 0 otherwise
+            write.csv(sigMask, 'temp.csv')
             ExpressMatrixLFC <- subset(dataMatrix, rowSums(sigMask) != 0) # filter for significant genes
             sigMask <- subset(sigMask, rowSums(sigMask) != 0)
             write.csv(ExpressMatrixLFC, file=file.path(results_path,"3.Significant_separate_LFC.csv"))
@@ -134,10 +136,9 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             unlink('./s3_DE_results/enrichfiles/*')
 
             for (i in colnames(fit$coefficients)) {
-                dataMarix <- fit$coefficient
-                sigMask <- dataMatrix * (results**2) # 1 if significant, 0 otherwise
-                ExpressMatrixLFC1 <- subset(dataMatrix[,i], sigMask[,i] != 0) # filter for significant genes
-                allgenes         <- fit$coefficients[, i]
+
+                ExpressMatrixLFC1 <- subset(fit$coefficients[,i], results[,i] != 0) # filter for significant genes
+                allgenes          <- fit$coefficients[, i]
                 if (typeof(gene_conversion_file) == 'character') {
                     if (length(ExpressMatrixLFC1)>0) {
                         sig_HGNC <- merge(rhesus2human, ExpressMatrixLFC1, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
