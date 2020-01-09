@@ -83,7 +83,7 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
                 ego      <- run_over_enrichment(mod$HGNC.symbol, go_enrich_type=go_enrich_type, gene_name_type=gene_name_type)
             }
  
-            write.table(as.data.frame(ego), file=file.path(results_path_mod, paste0('total_enrichment_',m,'.csv')))
+            write.csv(as.data.frame(ego), file=file.path(results_path_mod, paste0('total_enrichment_',m,'.csv')))
             if (is.null(ego)) { 
                 print ('WARNNING: No enrichments found so no output figures or files will be generated')
             } else { 
@@ -158,7 +158,7 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             if (ensembl_retrieve==TRUE) {
                 extract_genesego(ego, genes, results_path, ensembl, enrich_type='ora', direction='all', NumGOterms=NumTopGoTerms)
             }
-            write.table(as.data.frame(ego), file=file.path(results_path, paste0('total_enrichment_all.csv')))
+            write.csv(as.data.frame(ego), file=file.path(results_path, paste0('total_enrichment_all.csv')))
         } else { 
             print ('WARNING: not enough data to generate cnetplot for all differentially expressed genes over enrichment')
         }
@@ -186,7 +186,7 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
             if (ensembl_retrieve==TRUE) {
                 extract_genesego(egodown, genes, results_path, ensembl, enrich_type='ora', direction='down', NumGOterms=NumTopGoTerms)
             }
-            write.table(as.data.frame(egodown), file=file.path(results_path, paste0('total_enrichment_down.csv')))
+            write.csv(as.data.frame(egodown), file=file.path(results_path, paste0('total_enrichment_down.csv')))
         } else { 
             print ('WARNING: not enough data to generate cnetplot for downregulated genes over enrichment')
         }
