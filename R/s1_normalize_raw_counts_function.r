@@ -25,17 +25,15 @@ s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=
     print("STATUS: filtering out genes with low counts")
     A                <- rowSums(DE_DF$counts)
     isexpr           <- A > filter_genes_below_counts
-    DE_DF            <- DE_DF[isexpr,]
+    DE_DF            <- DE_DF[isexpr,]  
+    ###NORMALIZE VIA TMM
+    print("STATUS: getting normalizing factors (method TMM)")
     DE_DF_fl         <- calcNormFactors(DE_DF)
 
     ###get biological coefficients of variation
     print("STATUS: getting biological coefficient of variation (takes time...)")
     count_matrix_flv <- biological_coefficents_variation(DE_DF_fl)
     
-    ###NORMALIZE VIA TMM
-    print("STATUS: getting normalizing factors (method TMM)")
-    DE_DF_fl_norm    <- calcNormFactors(DE_DF_fl)
-
     ###SET UP MODEL DESIGN
     print("STATUS: setting up model design")
 
@@ -66,13 +64,13 @@ s1_normalize_raw_counts <- function(countfile, targetfile, gene_conversion_file=
             # colnames(design) <- levels(CLASS1)
             if (blocking_column != FALSE) {
                 BLOCKID  <- factor(files$targets[,blocking_column], levels=unique(files$targets[,blocking_column]))
-                corfit   <- duplicateCorrelation(DE_DF_fl_norm$counts,design,block=BLOCKID)
+                corfit   <- duplicateCorrelation(DE_DF_fl$counts,design,block=BLOCKID)
             }
             ###RUN VOOM
             print("STATUS: running voom")
             png(file.path(results_path,'1.voomplot.png'), res=figres)
             # par(mar=c(1,1,1,1))
-            V.CPM        <- voomWithQualityWeights(DE_DF_fl_norm, design=design, plot=T, span=0.1)
+            V.CPM        <- voomWithQualityWeights(DE_DF_fl, design=design, plot=T, span=0.1)
             dev.off()
 
             ###save normalized counts and design variable used for linear modeling later
