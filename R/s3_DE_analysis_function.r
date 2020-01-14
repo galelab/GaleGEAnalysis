@@ -161,8 +161,10 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
                     all_HGNC <- merge(rhesus2human, allgenes, by.x='Gene.stable.ID', by.y='row.names',all.X=T,all.Y=T)
                     all_HGNC <- all_HGNC[ , !(names(all_HGNC) %in% c('Gene.stable.ID'))]
                     all_HGNC <- avereps(all_HGNC, ID = all_HGNC$HGNC.symbol)
-                    write.table(all_HGNC, file=file.path(results_path2, paste0(i,'_all.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
+                    ###This file may have duplicates 
+                    # write.table(all_HGNC, file=file.path(results_path2, paste0(i,'_all.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
                     all_HGNCnodup           <- all_HGNC[!duplicated(all_HGNC[,2]), ]
+                    ###No Duplicates in this file 
                     write.table(all_HGNCnodup, file=file.path(results_path2, paste0(i,'_all4GSEA.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
 
                 } else { 
