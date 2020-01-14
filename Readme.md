@@ -41,9 +41,10 @@ GaleGEAnalysis currently has 5 primary functions
     3.heatmap_djn.png - heatmap of log fold change values of genese that are significantly differentially expressed at atleast one comparison.
     enrichfiles/ - this folder contains list of rank files that are used in step s4_gene_enrichment_analysis
 
-        *_sig4GSEA.rnk - contain list of significant differnetially expressed genes and log fold change values at given comparison to be used for GSEA analysis in other programs such as WebGestalt
+        *_sig.rnk - contain list of significant differnetially expressed genes and log fold change values at given comparison to be used for GSEA analysis in other programs such as WebGestalt
 
-        *_all4GSEA.rnk - contain list of all genes and log fold change values at given comparison to be used for GSEA analysis in other programs such as WebGestalt     
+        *_all4GSEA.rnk - contain list of all genes and log fold change values at given comparison to be used for GSEA analysis in other programs such as WebGestalt (Note: No duplicate genes in this list)    
+
 5. s4_gene_enrichment_analysis - function will perform over representation analysis (ORA) on genes significantly expressed identified in step s3_DE_anlysis.  Step 3 clusters these genes according to expression patterns (see heatmap generated in step s3_DE_anlysis) into modules.  ORA is done on each module.  If user wants to look at ORA of a specific comparison specify the comparison in the comparison option of the s4_gene_enrichment_analysis function.  Also the user can input their own rank file and perform ORA on that instead of gene lists in step s3_DE_anlysis (see examples below). For each comparison an output folder will be generated with a number of output files such as:
 
     over_enrich_barplotall_ge.png - bar plot of significantly enriched GO terms using all differentially expressed genes
