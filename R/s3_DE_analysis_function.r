@@ -15,6 +15,7 @@
 #' @import gplots 
 #' @import ggplot2
 #' @import data.table
+#' @import stringr
 #' @examples
 #' s3_DE_analysis(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/target_file.csv', gene_conversion_file='rhesus2human.csv', blocking_column=2, matrixfile='./MATRIX.txt')
  
@@ -162,7 +163,7 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
                     all_HGNC <- all_HGNC[ , !(names(all_HGNC) %in% c('Gene.stable.ID'))]
                     all_HGNC <- avereps(all_HGNC, ID = all_HGNC$HGNC.symbol)
                     ###This file may have duplicates 
-                    # write.table(all_HGNC, file=file.path(results_path2, paste0(i,'_all.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
+                    write.table(all_HGNC, file=file.path(results_path2, paste0(i,'_all.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
                     all_HGNCnodup           <- all_HGNC[!duplicated(all_HGNC[,2]), ]
                     ###No Duplicates in this file 
                     write.table(all_HGNCnodup, file=file.path(results_path2, paste0(i,'_all4GSEA.rnk')), row.names=FALSE, col.names = FALSE, sep='\t', quote=FALSE)
@@ -183,6 +184,12 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
                 # P.values      <-p.adjust(ExpressMatrix, method="BH");
 
             }
+            new_colnames <- c()
+            for (i in colnames(ExpressMatrixLFC)) {
+                i = str_remove_all(i, "treatment")
+                new_colnames <- c(new_colnames, i)
+            }
+            colnames(ExpressMatrixLFC) <- new_colnames
 
             hm_results      <- vizualize_DE_genes_HM(ExpressMatrixLFC, file.path(results_path, "3.heatmap_djn.png"))
             global_modules  <- hm_results$modules
@@ -203,7 +210,8 @@ s3_DE_analysis <- function(countfile='./s1_norm_raw_counts_results/1.norm_matrix
             # clustermatrixM$HGNC.symbol <- rhesus2human$HGNC.symbol[match(rhesus2human$Gene.stable.ID, rownames(clustermatrixM))]
             # clustermatrixM_hgnc    <- inner_join(rhesus2human, clustermatrixM, by='Gene.Stable.ID')
             # print (head(clustermatrixM_hgnc))
-            # write.csv(clustermatrixM_hgnc, file=file.path(results_path,  "3.Clustered_LFC_HGNC.csv"))     
+            # write.csv(clustermatrixM_hgnc, file=file.path(results_path,  "3.Clustered_LFC_HGNC.csv"))
+            colnames(results) <- new_colnames
             vizualize_DE_genes_bp(results, file.path(results_path,'3.barplot_NumDEgenes.png'))
 
         } else { 
