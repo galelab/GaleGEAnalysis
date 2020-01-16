@@ -65,7 +65,7 @@ s4_gene_enrichment_analysis <-function(go_enrich_type='BP', universe=TRUE, DEgen
     }
     ###Connect to biomart
     if (ensembl_retrieve==TRUE) {
-        ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl",  mirror = "useast")
+        ensembl <- useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl")
     } else {
         ensembl <- FALSE
     }
