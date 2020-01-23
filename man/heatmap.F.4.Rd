@@ -15,7 +15,7 @@ heatmap.F.4(
   cutoffmethod = "depth",
   cutoff = 3,
   labRow = FALSE,
-  margins = c(10, 2),
+  margins = c(20, 2),
   symbreaks = T,
   scale = c("none"),
   keytitle = "log2 Fold Change",

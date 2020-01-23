@@ -15,6 +15,8 @@ s4_gene_enrichment_analysis(
   modules = TRUE,
   NumTopGoTerms = 30,
   figres = 300,
+  ensembl_retrieve = TRUE,
+  gene_name_type = "SYMBOL",
   base_file_name = "ge.png"
 )
 }
@@ -36,6 +38,8 @@ s4_gene_enrichment_analysis(
 \item{NumTopGoTerms}{top GO terms to show (default 10)}
 
 \item{figres}{resolution of output figures (default 300)}
+
+\item{ensembl_retrieve}{whether or not to retrieve gene name descriptions}
 
 \item{base_file_name}{name to save files under (default ge.png)}
 
