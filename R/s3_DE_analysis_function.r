@@ -326,7 +326,7 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
     }
 }
 
-convert2HGNC < -function(gene_conversion_file, input_file,
+convert2HGNC <- function(gene_conversion_file, input_file,
                         output_file, results_path) {
 
     if (typeof(gene_conversion_file) == "character") {
@@ -345,7 +345,7 @@ convert2HGNC < -function(gene_conversion_file, input_file,
     }
 }
 
-vizualize_DE_genes_HM < -function(data, plot_file) {
+vizualize_DE_genes_HM <- function(data, plot_file) {
     print("STATUS: Generating heatmap of DE genes...")
     png(plot_file, width = 8, height = 10, units = "in", res = 300)
     global_modules <- heatmap.F.4(data, cutoff = 1, distmethod = "euclidean",
@@ -354,7 +354,7 @@ vizualize_DE_genes_HM < -function(data, plot_file) {
     return(global_modules)
 }
 
-vizualize_DE_genes_bp < -function(results, plot_file) {
+vizualize_DE_genes_bp <- function(results, plot_file) {
     print("STATUS: Generating bar plot of number of DE genes...")
     results_t <- t(summary(results))
     results_t <- results_t[, -2]

@@ -21,38 +21,38 @@
 #' @examples
 #' s2_feature_reduction(countfile="./s1_norm_raw_counts_results/1.norm_matrix.txt",  targetfile="./p1_modified_count_matrix_results/target_file.csv", target_columns=c(2,5), base_file_name="vnorm.png")
 
-s2_feature_reduction <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix.txt", 
+s2_feature_reduction <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix.txt",
                                  targetfile="./p1_modified_count_matrix_results/targets_mod.csv",
-                                 target_columns=c(2,5), figres=100,
+                                 target_columns=c(2, 5), figres=100,
                                  pca=TRUE, UMAP=TRUE, tsne=TRUE,
                                  base_file_name="vnorm.png") {
     pdf(NULL)
-    files <- loadfiles(count_file=countfile, target_file=targetfile)
+    files <- loadfiles(count_file = countfile, target_file = targetfile)
     results_path <- generate_folder("s2_feature_reduction_results")
 
-    print ("STATUS: Running MDS feature reduction")
+    print("STATUS: Running MDS feature reduction")
     vizualize_feature_reduction_data(files$counts,
-                                     files$targets[,target_columns[1]],
+                                     files$targets[, target_columns[1]],
                                      results_path, base_file_name,
                                      figres)
     if (all.equal(rownames(files$targets), colnames(files$counts)) != TRUE) {
-        print ("WARNING: order of samples in target and count file is not the same, this needs fixing before code can proceed")
+        print("WARNING: order of samples in target and count file is not the same, this needs fixing before code can proceed")
     } else {
         if (pca == TRUE) {
-            print ("STATUS: Running PCA feature reduction")
+            print("STATUS: Running PCA feature reduction")
             pca_fun(files$counts, files$target,
                     results_path, base_file_name,
                     target_columns, figres)
         }
 
         if (UMAP == TRUE) {
-            print ("STATUS: Running UMAP feature reduction")
+            print("STATUS: Running UMAP feature reduction")
             umap_fun(files$counts, files$target,
                      results_path, base_file_name,
                      target_columns, figres)
         }
         if (tsne == TRUE) {
-           print ("STATUS: Running tSNE feature reduction")
+           print("STATUS: Running tSNE feature reduction")
            tsne_fun(files$counts, files$target,
                     results_path, base_file_name,
                     target_columns, figres)
@@ -84,7 +84,7 @@ vizualize_feature_reduction_data <- function(data,
 }
 
 
-pca_fun < -function(exprs, labels, results_path,
+pca_fun <- function(exprs, labels, results_path,
                     base_file_name, target_columns,
                     figres=100) {
     #Run PCA/SVD reduction
@@ -155,14 +155,14 @@ vizualize_umap <- function(plot_file, U, class1, class2, figres) {
 }
 
 vizualize_pca <- function(plot_file, PCA, class1, class2, figres, E) {
-    #Vizualize PCA  results 
+    #Vizualize PCA  results
     minx <- min(PCA[, 1])
     maxx <- max(PCA[, 1])
     miny <- min(PCA[, 2])
     maxy <- max(PCA[, 2])
     png(plot_file, res = figres)
     par(mar = c(5, 4, 2, 5.5), xpd = TRUE)
-    plot(PCA[,1], PCA[,2], frame = FALSE, 
+    plot(PCA[, 1], PCA[, 2], frame = FALSE,
          ylim = c(miny, maxy), xlim = c(minx, maxx),
          pch = as.numeric(as.factor(class1)),
          col = as.numeric(as.factor(class2)),
@@ -177,7 +177,7 @@ vizualize_pca <- function(plot_file, PCA, class1, class2, figres, E) {
     dev.off()
 }
 
-vizualize_scree_plot < -function(plot_file, PCA, figres) {
+vizualize_scree_plot <- function(plot_file, PCA, figres) {
     #Vizualize principle component variation results
     scree.plot <- fviz_eig(PCA, addlabels = TRUE, hjust = -0.3)
     png(plot_file, res = figres)
