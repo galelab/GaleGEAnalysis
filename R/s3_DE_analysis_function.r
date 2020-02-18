@@ -126,7 +126,7 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
                                                       "3.All_Pvalues.txt"),
                         sep = "\t")
             DE_HGNC <- read.csv(file.path(results_path, "3.All_Pvalues.txt"),
-                                header = T,row.names = 1, check.names = FALSE, 
+                                header = T, row.names = 1, check.names = FALSE,
                                 sep = "\t")
             if (typeof(gene_conversion_file) == "character") {
                 rhesus2human <- read.csv(file = gene_conversion_file,
