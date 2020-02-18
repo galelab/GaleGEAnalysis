@@ -1,19 +1,19 @@
-#" s1 normalize raw counts function following Gale lab protocol
-#"
-#" This function allows the normalization of raw counts following a general protocol developed by previous members of the gale lab
-#" @param countfile raw counts table (generally output by htseq).
-#" @param targetfile target file.
-#" @param target_column columns from the target file to build design matrix for future DE analysis
-#" @param blocking_column column to account sampling from the same animal multiple times
-#" @param vizualize_data whether or not to generate figures (default set to true).
-#" @param filter_genes_below_counts filter out genes with counts below a certain value, (default set to 0).
-#" @param figres resolution at which to output figures (default is 300).
-#" @keywords gene expression normalization
-#" @export
-#" @import limma
-#" @import edgeR
-#" @examples
-#" normalize_raw_counts(countfile="./p1_modified_count_matrix_results/count_file.txt", targetfile="./p1_modified_count_matrix_results/target_file.csv", gene_conversion_file="rhesus2human.csv", target_column=10, blocking_column=2, vizualize_data=TRUE, filter_genes_below_counts=0, figres=100)
+#' s1 normalize raw counts function following Gale lab protocol
+#'
+#' This function allows the normalization of raw counts following a general protocol developed by previous members of the gale lab
+#' @param countfile raw counts table (generally output by htseq).
+#' @param targetfile target file.
+#' @param target_column columns from the target file to build design matrix for future DE analysis
+#' @param blocking_column column to account sampling from the same animal multiple times
+#' @param vizualize_data whether or not to generate figures (default set to true).
+#' @param filter_genes_below_counts filter out genes with counts below a certain value, (default set to 0).
+#' @param figres resolution at which to output figures (default is 300).
+#' @keywords gene expression normalization
+#' @export
+#' @import limma
+#' @import edgeR
+#' @examples
+#' normalize_raw_counts(countfile="./p1_modified_count_matrix_results/count_file.txt", targetfile="./p1_modified_count_matrix_results/target_file.csv", gene_conversion_file="rhesus2human.csv", target_column=10, blocking_column=2, vizualize_data=TRUE, filter_genes_below_counts=0, figres=100)
 
 s1_normalize_raw_counts <- function(countfile, targetfile,
                                     gene_conversion_file=FALSE,

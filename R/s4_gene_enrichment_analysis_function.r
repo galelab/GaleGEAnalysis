@@ -1,30 +1,30 @@
-#" s4 gene enrichment analysis
-#"
-#" This function runs gene enrichment analysis
-#"
-#" @keywords gene enrichment analysis
-#" @param go_enrich_type type of GO enrichment to do (BP, CC, or MF) (default BP)
-#" @param universe Will specify whether you want to use the whole genome as background (FALSE) or set of total expressed genes(TRUE)
-#" @param DEgenes file containg log fold change for DE genes (default FALSE, needs to be given with log_values_column if used)
-#" @param log_fold_column column to pull from DEgenes
-#" @param rnkfile file containing list of users own genes (not generated in step s3).  Must be in rank file format (gene name & logfold value seperated by tab)
-#" @param result_folder user specified output folder (default is s4_gene_enrichment_results)
-#" @param comparison specify name of time point comparison to perform over enrichment analysis and GSEA 
-#" @param modules perform over enrichment analysis on modules generated in step s3
-#" @param NumTopGoTerms top GO terms to show (default 10)
-#" @param figres resolution of output figures (default 300)
-#" @param ensembl_retrieve whether or not to retrieve gene name descriptions
-#" @param base_file_name name to save files under (default ge.png)
-#" @import clusterProfiler
-#" @import org.Hs.eg.db
-#" @import AnnotationHub
-#" @import biomaRt
-#" @import data.table
-#" @import ggplot2
-#" @import stringr
-#" @export
-#" @examples
-#" s4_gene_enrichment_analysis(DEgenes=FALSE, go_enrich_type="BP", log_values_column=FALSE, modules=TRUE, pvalue=0.05, qvalue=0.05, NumTopGoTerms=30)
+#' s4 gene enrichment analysis
+#'
+#' This function runs gene enrichment analysis
+#'
+#' @keywords gene enrichment analysis
+#' @param go_enrich_type type of GO enrichment to do (BP, CC, or MF) (default BP)
+#' @param universe Will specify whether you want to use the whole genome as background (FALSE) or set of total expressed genes(TRUE)
+#' @param DEgenes file containg log fold change for DE genes (default FALSE, needs to be given with log_values_column if used)
+#' @param log_fold_column column to pull from DEgenes
+#' @param rnkfile file containing list of users own genes (not generated in step s3).  Must be in rank file format (gene name & logfold value seperated by tab)
+#' @param result_folder user specified output folder (default is s4_gene_enrichment_results)
+#' @param comparison specify name of time point comparison to perform over enrichment analysis and GSEA 
+#' @param modules perform over enrichment analysis on modules generated in step s3
+#' @param NumTopGoTerms top GO terms to show (default 10)
+#' @param figres resolution of output figures (default 300)
+#' @param ensembl_retrieve whether or not to retrieve gene name descriptions
+#' @param base_file_name name to save files under (default ge.png)
+#' @import clusterProfiler
+#' @import org.Hs.eg.db
+#' @import AnnotationHub
+#' @import biomaRt
+#' @import data.table
+#' @import ggplot2
+#' @import stringr
+#' @export
+#' @examples
+#' s4_gene_enrichment_analysis(DEgenes=FALSE, go_enrich_type="BP", log_values_column=FALSE, modules=TRUE, pvalue=0.05, qvalue=0.05, NumTopGoTerms=30)
 
 s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
                                         DEgenes=FALSE, log_values_column=FALSE,
@@ -37,7 +37,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
     if (typeof(result_folder) == "logical") {
         results_path <- generate_folder("s4_gene_enrichment_results")
         if (typeof(comparison) == "character") {
-            results_path  <- generate_folder(paste0("s4_gene_enrichment_results/",
+            results_path <- generate_folder(paste0("s4_gene_enrichment_results/",
                                                     comparison))
             unlink(paste0(results_path, "/*"))
         } else if (typeof(log_values_column) != "logical") {
@@ -46,7 +46,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
             unlink(paste0(results_path, "/*"))
         }
         if (modules == TRUE) {
-            results_path_mod  <- generate_folder(paste("s4_gene_enrichment_results/modules")) 
+            results_path_mod <- generate_folder(paste("s4_gene_enrichment_results/modules")) 
             unlink(paste0(results_path_mod, "/*"))
         }
     } else {

@@ -1,14 +1,14 @@
-#" p1 modifying count matrix modifies count matrix
-#"
-#" This function allows remove samples from count matrix if they
-#"  are not to be included in downstream gene expression analysis
-#" @param countfile raw counts table (generally output by htseq).
-#" @param targetfile target file.
-#" @param samples_to_remove_count_matrix text file (no header) or r list of samples to remove (defualt is FALSE)
-#" @keywords remove samples
-#" @export
-#" @examples
-#" p1_modify_count_matrix(count_file.txt, target_file.csv, samples_to_remove_count_matrix=c(sample1,sample2))
+#' p1 modifying count matrix modifies count matrix
+#'
+#' This function allows remove samples from count matrix if they
+#'  are not to be included in downstream gene expression analysis
+#' @param countfile raw counts table (generally output by htseq).
+#' @param targetfile target file.
+#' @param samples_to_remove_count_matrix text file (no header) or r list of samples to remove (defualt is FALSE)
+#' @keywords remove samples
+#' @export
+#' @examples
+#' p1_modify_count_matrix(count_file.txt, target_file.csv, samples_to_remove_count_matrix=c(sample1,sample2))
 
 p1_modify_count_matrix <- function(countfile, targetfile,
                                    samples_to_remove_count_matrix=FALSE) {
