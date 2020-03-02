@@ -364,12 +364,12 @@ vizualize_DE_genes_bp <- function(results, plot_file) {
     }
 
     DE <- as.data.frame(results_t)
-    DE <- setnames(DE, old = c("Var1","Var2", "Freq"),
+    DE <- setnames(DE, old = c("Var1", "Var2", "Freq"),
                    new = c("Time_Point", "group", "DE_genes"))
 
     #Create plot
     ggplot(DE, aes(x = Time_Point, y = DE_genes, fill = group,
-           label = DE$DE_genes)) + 
+           label = DE$DE_genes)) +
            geom_bar(stat = "identity", position = "identity") +
     # geom_text(size = 5, position = position_stack(vjust = 0) )+
     scale_fill_manual(values = c("#9d9dff", "#ff4d4d")) +
