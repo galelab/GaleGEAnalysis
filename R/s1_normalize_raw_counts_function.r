@@ -84,6 +84,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
             print("STATUS: running voom")
             png(file.path(results_path, "1.voomplot.png"), res = figres)
 
+            #Transform count data to log2-counts per million
             V.CPM <- voomWithQualityWeights(DE_DF_fl,
                                             design = design,
                                             plot = T, span = 0.1)
