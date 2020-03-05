@@ -9,7 +9,7 @@
 #' @param log_fold_column column to pull from DEgenes
 #' @param rnkfile file containing list of users own genes (not generated in step s3).  Must be in rank file format (gene name & logfold value seperated by tab)
 #' @param result_folder user specified output folder (default is s4_gene_enrichment_results)
-#' @param comparison specify name of time point comparison to perform over enrichment analysis and GSEA 
+#' @param comparison specify name of time point comparison to perform over enrichment analysis 
 #' @param modules perform over enrichment analysis on modules generated in step s3
 #' @param NumTopGoTerms top GO terms to show (default 10)
 #' @param figres resolution of output figures (default 300)

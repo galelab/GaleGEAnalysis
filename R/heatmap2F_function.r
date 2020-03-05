@@ -156,7 +156,7 @@ heatmap.F.4 = function(dataM,
 			         	 scale=scale,
                  dendrogram=dendrogram,
                  RowSideColors=rowcol,
-                 ColSideColors=colcolorlist,
+                #  ColSideColors=colcolorlist,
                  symbreaks=symbreaks,
 				 main=main)
   
