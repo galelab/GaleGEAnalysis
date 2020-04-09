@@ -104,14 +104,12 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
                 write.csv(DE_HGNC,
                           file = file.path(results_path, "3.All_data_HGNC.csv"))
             }
-
             write.table(fit$coefficients,
                         file = file.path(results_path, "3.All_LFC.txt"),
                         sep = "\t")
             DE_HGNC <- read.csv(file.path(results_path, "3.All_LFC.txt"),
                                 header = T, row.names = 1,
                                 check.names = FALSE, sep = "\t")
-
             if (typeof(gene_conversion_file) == "character") {
                 rhesus2human <- read.csv(file = gene_conversion_file,
                                          header = TRUE,
@@ -144,7 +142,6 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
             DE_HGNC <- read.csv(file.path(results_path, "3.All_tvalues.txt"),
                                 header = T, row.names = 1,
                                 check.names = FALSE, sep = "\t")
-
             if (typeof(gene_conversion_file) == "character") {
                 rhesus2human <- read.csv(file = gene_conversion_file,
                                         header = TRUE, stringsAsFactors = FALSE)
@@ -168,7 +165,6 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
             sigMask <- subset(sigMask, rowSums(sigMask) != 0)
             write.csv(ExpressMatrixLFC, file = file.path(results_path,
                                         "3.Significant_separate_LFC.csv"))
-
             convert2HGNC(gene_conversion_file,
                         "3.Significant_separate_LFC.csv",
                         "3.Significant_separate_LFC_HGNC_AV.csv",
@@ -295,31 +291,34 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
             }
             colnames(ExpressMatrixLFC) <- new_colnames
 
-            hm_results      <- vizualize_DE_genes_HM(ExpressMatrixLFC,
-                                                     file.path(results_path,
-                                                     "3.heatmap_djn.png"))
-            global_modules  <- hm_results$modules
-            write.csv(global_modules,
-                      file = file.path(results_path, "3.modules.csv"))
-            global_modulesM <- as.matrix(global_modules)
-            GM_HGNC         <- merge(rhesus2human, global_modulesM,
-                                     by.x = "Gene.stable.ID",
-                                     by.y = "row.names",
-                                     all.X = T, all.Y = T)
-            write.csv(GM_HGNC, file = file.path(results_path,
-                                               "3.modules_HGNC.csv"))
+            if (dim(ExpressMatrixLFC)[1] > 0) {
+                hm_results      <- vizualize_DE_genes_HM(ExpressMatrixLFC,
+                                                        file.path(results_path,
+                                                        "3.heatmap_djn.png"))
+                global_modules  <- hm_results$modules
+                write.csv(global_modules,
+                        file = file.path(results_path, "3.modules.csv"))
+                global_modulesM <- as.matrix(global_modules)
+                GM_HGNC         <- merge(rhesus2human, global_modulesM,
+                                        by.x = "Gene.stable.ID",
+                                        by.y = "row.names",
+                                        all.X = T, all.Y = T)
+                write.csv(GM_HGNC, file = file.path(results_path,
+                                                "3.modules_HGNC.csv"))
 
-            clustermatrix  <- hm_results$clustermatrix
-            #invert row order
-            clustermatrix   <- clustermatrix[order(nrow(clustermatrix):1), ]
-            write.csv(clustermatrix, file = file.path(results_path,
-                                                     "3.Clustered_LFC.csv"),
-                      quote = FALSE)
+                clustermatrix  <- hm_results$clustermatrix
+                #invert row order
+                clustermatrix   <- clustermatrix[order(nrow(clustermatrix):1), ]
+                write.csv(clustermatrix, file = file.path(results_path,
+                                                        "3.Clustered_LFC.csv"),
+                        quote = FALSE)
 
-            colnames(results) <- new_colnames
-            vizualize_DE_genes_bp(results, file.path(results_path,
-                                           "3.barplot_NumDEgenes.png"))
-
+                colnames(results) <- new_colnames
+                vizualize_DE_genes_bp(results, file.path(results_path,
+                                            "3.barplot_NumDEgenes.png"))
+            } else {
+                print ("WARNING: NO SIGNIFICANT GENES SO NOT GENERATE FIGURES OR EXTRA FILES")
+            }
         } else {
             print("WARNING: need to specify matrix file")
         }
@@ -335,11 +334,14 @@ convert2HGNC <- function(gene_conversion_file, input_file,
                                  stringsAsFactors = FALSE)
         DE_HGNC_LFC <- read.csv(file.path(results_path, input_file), header = T,
                                 row.names = 1, check.names = FALSE, sep = ",")
-        DE_HGNC_LFC <- merge(rhesus2human, DE_HGNC_LFC,
-                              by.x = "Gene.stable.ID", by.y = "row.names")
-        DE_HGNC_LFC <- avereps(DE_HGNC_LFC, ID = DE_HGNC_LFC$HGNC.symbol)
-        write.csv(DE_HGNC_LFC, file = file.path(results_path, output_file))
-
+        if (dim(DE_HGNC_LFC)[1] > 0) {
+            DE_HGNC_LFC <- merge(rhesus2human, DE_HGNC_LFC,
+                                by.x = "Gene.stable.ID", by.y = "row.names")
+            DE_HGNC_LFC <- avereps(DE_HGNC_LFC, ID = DE_HGNC_LFC$HGNC.symbol)
+            write.csv(DE_HGNC_LFC, file = file.path(results_path, output_file))
+        } else {
+            print("WARNING NO SIGNIFICANT GENES SO CAN'T GENERATE HGNC FILE")
+        }
     } else {
         print("WARNING: need to specify conversion file to convert Ensembls to HGNCs")
     }
