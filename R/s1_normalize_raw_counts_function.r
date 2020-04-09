@@ -51,7 +51,11 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
         print (paste0("Length of column names in count/normalized matrix:", length(colnames(DE_DF))))
     }
     else if ( all.equal(rownames(files$targets), colnames(files$counts)) != TRUE) {
-       print ("WARNING: or order of samples in target file does not match order in count file (needs fixing before we can proceed)")
+       print ("WARNING: Order of samples in target file does not match order in count file (needs fixing before we can proceed)")
+    #    files$counts <- files$counts[, rownames(files$targets)]
+    #    if (all.equal(rownames(files$targets), colnames(files$counts)) == TRUE) {
+    #        print("WARNING: Order of samples has been corrected!")
+    #    }
     }
     else {
         results_path <- generate_folder("s1_norm_raw_counts_results")
