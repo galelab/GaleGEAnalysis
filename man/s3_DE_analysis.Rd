@@ -36,7 +36,7 @@ s3_DE_analysis(
 This function runs differential gene analysis (linear modeling on normalized counts)
 }
 \examples{
-s3_DE_analysis(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt', targetfile='./p1_modified_count_matrix_results/target_file.csv', gene_conversion_file='rhesus2human.csv', blocking_column=2, matrixfile='./MATRIX.txt')
+s3_DE_analysis(countfile="./s1_norm_raw_counts_results/1.norm_matrix.txt", targetfile="./p1_modified_count_matrix_results/target_file.csv", gene_conversion_file="rhesus2human.csv", blocking_column=2, matrixfile="./MATRIX.txt")
 }
 \keyword{differential}
 \keyword{expression}

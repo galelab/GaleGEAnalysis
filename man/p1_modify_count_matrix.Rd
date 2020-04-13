@@ -18,7 +18,8 @@ p1_modify_count_matrix(
 \item{samples_to_remove_count_matrix}{text file (no header) or r list of samples to remove (defualt is FALSE)}
 }
 \description{
-This function allows remove samples from count matrix if they are not to be included in downstream gene expression analysis
+This function allows remove samples from count matrix if they
+ are not to be included in downstream gene expression analysis
 }
 \examples{
 p1_modify_count_matrix(count_file.txt, target_file.csv, samples_to_remove_count_matrix=c(sample1,sample2))

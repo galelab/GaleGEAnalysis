@@ -31,7 +31,7 @@ s4_gene_enrichment_analysis(
 
 \item{result_folder}{user specified output folder (default is s4_gene_enrichment_results)}
 
-\item{comparison}{specify name of time point comparison to perform over enrichment analysis and GSEA}
+\item{comparison}{specify name of time point comparison to perform over enrichment analysis}
 
 \item{modules}{perform over enrichment analysis on modules generated in step s3}
 
@@ -49,7 +49,7 @@ s4_gene_enrichment_analysis(
 This function runs gene enrichment analysis
 }
 \examples{
-s4_gene_enrichment_analysis(DEgenes=FALSE, go_enrich_type='BP', log_values_column=FALSE, modules=TRUE, pvalue=0.05, qvalue=0.05, NumTopGoTerms=30)
+s4_gene_enrichment_analysis(DEgenes=FALSE, go_enrich_type="BP", log_values_column=FALSE, modules=TRUE, pvalue=0.05, qvalue=0.05, NumTopGoTerms=30)
 }
 \keyword{analysis}
 \keyword{enrichment}

@@ -34,7 +34,7 @@ s2_feature_reduction(
 This function does feature reduction and visualization on normalized voom counts
 }
 \examples{
-s2_feature_reduction(countfile='./s1_norm_raw_counts_results/1.norm_matrix.txt',  targetfile='./p1_modified_count_matrix_results/target_file.csv', target_columns=c(2,5), base_file_name='vnorm.png')
+s2_feature_reduction(countfile="./s1_norm_raw_counts_results/1.norm_matrix.txt",  targetfile="./p1_modified_count_matrix_results/target_file.csv", target_columns=c(2,5), base_file_name="vnorm.png")
 }
 \keyword{expression}
 \keyword{feature}
