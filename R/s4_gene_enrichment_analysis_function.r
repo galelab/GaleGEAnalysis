@@ -93,6 +93,14 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
         for (m in unique_modules) {
             mod <-  module[(module[, 3] == m),]
             mod <- mod[!(is.na(mod$HGNC.symbol) | mod$HGNC.symbol == ""), ]
+            geneList <- cbind(mod$HGNC.symbol, c(rep(1, length(mod$HGNC.symbol))))
+            head(geneList)
+            rownames(geneList) <- geneList[, 1]
+            head(geneList)
+            geneList <- geneList[, -1]
+            head(geneList)
+            class(geneList) <- "numeric"
+            # print(geneList)
             if (isTRUE(universe)) {
                 ego <- run_over_enrichment(mod$HGNC.symbol,
                                            go_enrich_type = go_enrich_type,
@@ -113,8 +121,14 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
             } else {
                 barplot(ego, showCategory = NumTopGoTerms)
                 ggsave(file.path(results_path_mod,
-                       paste0("over_enrich_", m, "_", base_file_name)),
+                       paste0("over_enrich_barplot_", m, "_", base_file_name)),
                         width = 10, height = 8, dpi = figres)
+                cnetplot(ego, foldChange = NULL)
+                ggsave(file.path(
+                    results_path_mod,
+                    paste0("over_enrich_cnetplot_", m, "_", base_file_name)
+                    ), width = 10, height = 8, dpi = figres
+                )
                 if (ensembl_retrieve == TRUE) {
                     extract_genesego(ego, rnk = FALSE,
                                      results_path_mod, ensembl,
@@ -195,7 +209,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
         }
         ego_dim <- dim(as.data.frame(ego))
         if (ego_dim[1] != 0) {
-            cnetplot(ego, foldChange = geneList)
+            cnetplot(ego, foldChange = NULL)
             ggsave(file.path(results_path,
                              paste0("over_enrich_cnetplotall_",
                                     base_file_name)), dpi = figres)
@@ -216,7 +230,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
 
         egoup_dim <- dim(as.data.frame(egoup))
         if (egoup_dim[1] != 0) {
-            cnetplot(egoup, foldChange = geneList)
+            cnetplot(egoup, foldChange = NULL)
             ggsave(file.path(results_path, paste0("over_enrich_cnetplotup_",
                                                   base_file_name)),
                    dpi = figres)
@@ -237,7 +251,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
 
         egodown_dim <- dim(as.data.frame(egodown))
         if (egodown_dim[1] != 0) {
-            cnetplot(egodown, foldChange = geneList)
+            cnetplot(egodown, foldChange = NULL)
             ggsave(file.path(results_path, paste0("over_enrich_cnetplotdown_",
                                                   base_file_name)),
                     dpi = figres)
