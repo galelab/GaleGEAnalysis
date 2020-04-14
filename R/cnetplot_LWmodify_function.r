@@ -44,6 +44,7 @@ cnetplot.enrichResult <- function(x,
                      circular = FALSE,
                      node_label = "all",
                      ...) {
+    library(igraph)
     node_label <- match.arg(node_label, c("category", "gene", "all", "none"))
 
     if (circular) {
