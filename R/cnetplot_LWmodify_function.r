@@ -32,7 +32,7 @@ setMethod("cnetplot", signature(x = "compareClusterResult"),
 ##' @param circular whether using circular layout
 ##' @param node_label select which labels to be displayed.
 ##'                   one of 'category', 'gene', 'all' and 'none', default is "all".
-##' @importFrom ggraph geom_edge_arc
+##' @importFrom ggraph geom_edge_arc, geom_edge_link
 ##' @importFrom ggplot2 scale_colour_gradient2
 ##' @author Guangchuang Yu
 cnetplot.enrichResult <- function(x,
