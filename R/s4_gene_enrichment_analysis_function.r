@@ -127,13 +127,12 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
                 ggsave(file.path(
                     results_path_mod,
                     paste0("over_enrich_cnetplot_", m, "_", base_file_name)
-                    ), width = 10, height = 8, dpi = figres
+                    ), width = 5, height = 5, dpi = figres
                 )
                 if (ensembl_retrieve == TRUE) {
                     extract_genesego(ego, rnk = FALSE,
                                      results_path_mod, ensembl,
-                                     enrich_type = "ora", direction = m,
-                                     NumGOterms = NumTopGoTerms)
+                                     enrich_type = "ora", direction = m)
                 }
             }
         }
@@ -219,8 +218,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
                              width = 10, height = 8, dpi = figres)
             if (ensembl_retrieve == TRUE) {
                 extract_genesego(ego, genes, results_path, ensembl,
-                                 enrich_type = "ora", direction = "all",
-                                 NumGOterms = NumTopGoTerms)
+                                 enrich_type = "ora", direction = "all")
             }
             write.csv(as.data.frame(ego), file = file.path(results_path,
                                           paste0("total_enrichment_all.csv")))
@@ -240,8 +238,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
                    width = 10, height = 8, dpi = figres)
             if (ensembl_retrieve == TRUE) {
                 extract_genesego(egoup, genes, results_path, ensembl,
-                                 enrich_type = "ora", direction = "up",
-                                 NumGOterms = NumTopGoTerms)
+                                 enrich_type = "ora", direction = "up")
             }
             write.table(as.data.frame(egoup), file = file.path(results_path,
                                             paste0("total_enrichment_up.csv")))
@@ -261,8 +258,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
                     width = 10, height = 8, dpi = figres)
             if (ensembl_retrieve == TRUE) {
                 extract_genesego(egodown, genes, results_path, ensembl,
-                                 enrich_type = "ora", direction = "down",
-                                 NumGOterms = NumTopGoTerms)
+                                 enrich_type = "ora", direction = "down")
             }
             write.csv(as.data.frame(egodown), file = file.path(results_path,
                                        paste0("total_enrichment_down.csv")))
@@ -299,13 +295,15 @@ run_over_enrichment <- function(genes,  go_enrich_type, gene_name_type,
 
 
 extract_genesego <- function(enrichment, rnk, results_path, ensembl,
-                             enrich_type="ora", direction="up", NumGOterms=10) {
+                             enrich_type="ora", direction="up", sig_cutoff=0.1) {
 
-    for (i in 1:NumGOterms) {
 
-        description <- str_replace(enrichment[i]$Description, "/", "_")
+    enrichment <- enrichment[enrichment$p.adjust <= sig_cutoff, ]
+
+    for (i in 1:dim(enrichment)[1]) {
+        description <- str_replace(enrichment$Description[i], "/", "_")
         print (paste0("STATUS: getting genes in ", description, " term"))
-        genes <- unlist(strsplit(enrichment[i]$geneID, "/"))
+        genes <- unlist(strsplit(enrichment$geneID[i], "/"))
 
         genedesc <- getBM(attributes = c("external_gene_name", "description"),
                           filters = "external_gene_name",
@@ -316,7 +314,7 @@ extract_genesego <- function(enrichment, rnk, results_path, ensembl,
         for (i in genedesc$description) {
             i <- gsub("\\s+\\[Source\\S+\\s+\\S+$", "", i, perl = TRUE)
             genedesc$description[count] <- i
-             count <- count + 1
+            count <- count + 1
         }
 
         if (typeof(rnk) != "logical") {
