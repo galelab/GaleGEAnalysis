@@ -59,11 +59,13 @@ GaleGEAnalysis currently has 5 primary functions
 
     over_enrich_cneplotdown_ge.png - cnet plot (network) of significantly enriched GO terms using down regulated differentially expressed genes
 
-    *all_ora_genes.csv tables of genes and corresponding log fold changes in GO terms when all differentially expresed genes were used for analysis
+    These files are printed for processes that are enriched with a sig adjusted pval <= 0.1
+        
+        *all_ora_genes.csv tables of genes and corresponding log fold changes in GO terms when all differentially expresed genes were used for analysis
 
-    *up_ora_genes.csv tables of genes and corresponding log fold changes in GO terms when up regulated differentially expresed genes were used for analysis
+        *up_ora_genes.csv tables of genes and corresponding log fold changes in GO terms when up regulated differentially expresed genes were used for analysis
 
-    *down_ora_genes.csv tables of genes and corresponding log fold changes in GO terms when down regulated differentially expresed genes were used for analysis
+        *down_ora_genes.csv tables of genes and corresponding log fold changes in GO terms when down regulated differentially expresed genes were used for analysis
 
 ## Example of pipeline run
 Commands for running pipeline
