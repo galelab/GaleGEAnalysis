@@ -13,6 +13,7 @@ s1_normalize_raw_counts(
   blocking_column = FALSE,
   visualize_data = TRUE,
   filter_genes_below_counts = 0,
+  results_folder = "s1_norm_raw_counts_results",
   figres = 100
 )
 }
@@ -26,6 +27,8 @@ s1_normalize_raw_counts(
 \item{blocking_column}{column to account sampling from the same animal multiple times}
 
 \item{filter_genes_below_counts}{filter out genes with counts below a certain value, (default set to 0).}
+
+\item{results_folder}{folder to store results in defualt is s1_norm_raw_counts_results}
 
 \item{figres}{resolution at which to output figures (default is 300).}
 

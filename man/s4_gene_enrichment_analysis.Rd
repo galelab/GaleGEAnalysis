@@ -10,9 +10,10 @@ s4_gene_enrichment_analysis(
   DEgenes = FALSE,
   log_values_column = FALSE,
   rnkfile = FALSE,
-  result_folder = FALSE,
+  results_folder = "s4_gene_enrichment_results",
   comparison = FALSE,
   modules = TRUE,
+  module_results_folder = "s3_DE_results",
   NumTopGoTerms = 30,
   figres = 300,
   ensembl_retrieve = TRUE,
@@ -29,11 +30,13 @@ s4_gene_enrichment_analysis(
 
 \item{rnkfile}{file containing list of users own genes (not generated in step s3).  Must be in rank file format (gene name & logfold value seperated by tab)}
 
-\item{result_folder}{user specified output folder (default is s4_gene_enrichment_results)}
+\item{results_folder}{user specified output folder (default is s4_gene_enrichment_results)}
 
 \item{comparison}{specify name of time point comparison to perform over enrichment analysis}
 
 \item{modules}{perform over enrichment analysis on modules generated in step s3}
+
+\item{module_results_folder}{folder where DE results are (default s3_DE_results/)}
 
 \item{NumTopGoTerms}{top GO terms to show (default 10)}
 
