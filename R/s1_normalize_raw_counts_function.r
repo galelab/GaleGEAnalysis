@@ -7,6 +7,7 @@
 #' @param blocking_column column to account sampling from the same animal multiple times
 #' @param vizualize_data whether or not to generate figures (default set to true).
 #' @param filter_genes_below_counts filter out genes with counts below a certain value, (default set to 0).
+#' @param results_folder folder to store results in defualt is s1_norm_raw_counts_results
 #' @param figres resolution at which to output figures (default is 300).
 #' @keywords gene expression normalization
 #' @export
@@ -21,6 +22,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
                                     blocking_column=FALSE,
                                     visualize_data=TRUE,
                                     filter_genes_below_counts=0,
+                                    results_folder = "s1_norm_raw_counts_results",
                                     figres=100) {
     ###READ IN FILES
     print("STATUS: loading files")
@@ -58,12 +60,12 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
     #    }
     }
     else {
-        results_path <- generate_folder("s1_norm_raw_counts_results")
-        unlink("./s1_norm_raw_counts_results/*")
+        results_path <- generate_folder(results_folder)
+        unlink(paste0(results_folder, "/*"))
         factors <- list()
 
         if (typeof(batch_column) == "logical") {
-            treatment    <- factor(files$targets[, target_column],
+            treatment   <- factor(files$targets[, target_column],
                             levels = unique(files$targets[, target_column]))
             design       <- model.matrix(~0 + treatment)
 
