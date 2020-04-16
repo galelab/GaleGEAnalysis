@@ -8,9 +8,10 @@
 #' @param DEgenes file containg log fold change for DE genes (default FALSE, needs to be given with log_values_column if used)
 #' @param log_fold_column column to pull from DEgenes
 #' @param rnkfile file containing list of users own genes (not generated in step s3).  Must be in rank file format (gene name & logfold value seperated by tab)
-#' @param result_folder user specified output folder (default is s4_gene_enrichment_results)
+#' @param results_folder user specified output folder (default is s4_gene_enrichment_results)
 #' @param comparison specify name of time point comparison to perform over enrichment analysis 
 #' @param modules perform over enrichment analysis on modules generated in step s3
+#' @param module_results_folder folder where DE results are (default s3_DE_results/)
 #' @param NumTopGoTerms top GO terms to show (default 10)
 #' @param figres resolution of output figures (default 300)
 #' @param ensembl_retrieve whether or not to retrieve gene name descriptions
@@ -28,46 +29,31 @@
 
 s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
                                         DEgenes=FALSE, log_values_column=FALSE,
-                                        rnkfile=FALSE, result_folder=FALSE,
+                                        rnkfile=FALSE, results_folder='s4_gene_enrichment_results',
                                         comparison=FALSE, modules=TRUE,
+                                        module_results_folder="s3_DE_results",
                                         NumTopGoTerms=30, figres=300,
                                         ensembl_retrieve=TRUE,
                                         gene_name_type="SYMBOL",
                                         base_file_name="ge.png") {
-    if (typeof(result_folder) == "logical") {
-        results_path <- generate_folder("s4_gene_enrichment_results")
-        if (typeof(comparison) == "character") {
-            results_path <- generate_folder(paste0("s4_gene_enrichment_results/",
-                                                    comparison))
-            unlink(paste0(results_path, "/*"))
-        } else if (typeof(log_values_column) != "logical") {
-            results_path  <- generate_folder(paste0("s4_gene_enrichment_results/column",
-                                                    log_values_column))
-            unlink(paste0(results_path, "/*"))
-        }
-        if (modules == TRUE) {
-            results_path_mod <- generate_folder(paste("s4_gene_enrichment_results/modules")) 
-            unlink(paste0(results_path_mod, "/*"))
-        }
-    } else {
-        results_path <- generate_folder(result_folder)
+    results_path <- generate_folder(results_folder)
+    unlink(paste0(results_path, "/*"))
+    if (typeof(comparison) == "character") {
+        results_path  <- generate_folder(paste0(results_folder,
+                                                "/", comparison))
         unlink(paste0(results_path, "/*"))
-        if (typeof(comparison) == "character") {
-            results_path  <- generate_folder(paste0(result_folder,
-                                                    "/", comparison))
-            unlink(paste0(results_path, "/*"))
-        } else if (typeof(log_values_column) != "logical") {
-            results_path  <- generate_folder(paste0(result_folder,
-                                                    "/column",
-                                                    log_values_column))
-            unlink(paste0(results_path, "/*"))
-        }
-        if (modules == TRUE) {
-            results_path_mod  <- generate_folder(paste(result_folder,
-                                                       "/modules"))
-            unlink(paste0(results_path_mod, "/*"))
-        }
+    } else if (typeof(log_values_column) != "logical") {
+        results_path  <- generate_folder(paste0(results_folder,
+                                                "/column",
+                                                log_values_column))
+        unlink(paste0(results_path, "/*"))
     }
+    if (modules == TRUE) {
+        results_path_mod  <- generate_folder(paste0(results_folder,
+                                                    "/modules"))
+        unlink(paste0(results_path_mod, "/*"))
+    }
+
     if (isTRUE(universe)) {
         all_genes_table <- read.table("./s1_norm_raw_counts_results/1.norm_matrix_HGNC.txt",
                                       row.names = 1, sep = "\t")
@@ -79,7 +65,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
     }
     ###Connect to biomart
     if (ensembl_retrieve == TRUE) {
-        ensembl <- useEnsembl(biomart = "ensembl",
+        ensembl <- useEnsembl(biomart = "ensembl", mirror="uswest",
                               dataset = "hsapiens_gene_ensembl")
     } else {
         ensembl <- FALSE
@@ -87,7 +73,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
     ###Perform over enrichment on modules
     ###generating from cluster heatmap in step s3
     if (modules == TRUE) {
-        module <- read.csv("./s3_DE_results/3.modules_HGNC.csv", row.names = 1)
+        module <- read.csv(paste0(module_results_folder, "/3.modules_HGNC.csv"), row.names = 1)
         unique_modules <- unique(module$V1)
 
         for (m in unique_modules) {
@@ -127,7 +113,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
                 ggsave(file.path(
                     results_path_mod,
                     paste0("over_enrich_cnetplot_", m, "_", base_file_name)
-                    ), width = 5, height = 5, dpi = figres
+                    ), width = 6, height = 6, dpi = 150
                 )
                 if (ensembl_retrieve == TRUE) {
                     extract_genesego(ego, rnk = FALSE,
@@ -140,18 +126,18 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
 
     if ((typeof(comparison) != "logical") | (typeof(log_values_column) != "logical") | (typeof(rnkfile) != "logical")) {
         if (typeof(comparison) == "character") {
-            genes <- read.table(file.path("./s3_DE_results/enrichfiles",
-                                          paste0(comparison, "_sig.rnk")),
+            genes <- read.table(file.path(paste0(module_results_folder, "enrichfiles",
+                                          comparison, "_sig.rnk")),
                                 sep = "\t")
-            genesall <- read.table(file.path("./s3_DE_results/enrichfiles",
-                                             paste0(comparison,"_all.rnk")),
+            genesall <- read.table(file.path(paste0(module_results_folder, "/enrichfiles",
+                                             comparison, "_all.rnk")),
                                    sep = "\t")
 
         } else if (typeof(log_values_column) != "logical") {
             genefile <- read.csv(DEgenes)
             cnames <- colnames(genefile)
-            genes <- read.table(file.path("./s3_DE_results/enrichfiles",
-                                paste0(cnames[log_values_column], "_sig.rnk")),
+            genes <- read.table(file.path(paste0(module_results_folder, "/enrichfiles",
+                                cnames[log_values_column], "_sig.rnk")),
                                 sep = "\t")
         } else if (typeof(rnkfile) != "logical") {
             genes <- read.table(rnkfile, sep = "\t")
@@ -305,40 +291,41 @@ extract_genesego <- function(enrichment, rnk, results_path, ensembl,
         print (paste0("STATUS: getting genes in ", description, " term"))
         genes <- unlist(strsplit(enrichment$geneID[i], "/"))
 
-        genedesc <- getBM(attributes = c("external_gene_name", "description"),
-                          filters = "external_gene_name",
-                          values = genes, mart = ensembl)
+        if (length(genes)>0) {
+            genedesc <- getBM(attributes = c("external_gene_name", "description"),
+                            filters = "external_gene_name",
+                            values = genes, mart = ensembl)
 
-        ###Remove unecessary extra information from description
-        count <- 1
-        for (i in genedesc$description) {
-            i <- gsub("\\s+\\[Source\\S+\\s+\\S+$", "", i, perl = TRUE)
-            genedesc$description[count] <- i
-            count <- count + 1
-        }
+            ###Remove unecessary extra information from description
+            count <- 1
+            for (i in genedesc$description) {
+                i <- gsub("\\s+\\[Source\\S+\\s+\\S+$", "", i, perl = TRUE)
+                genedesc$description[count] <- i
+                count <- count + 1
+            }
 
-        if (typeof(rnk) != "logical") {
-            tabl <- data.table(genedesc)
-            tabl1 <- data.table(rnk)
+            if (typeof(rnk) != "logical") {
+                tabl <- data.table(genedesc)
+                tabl1 <- data.table(rnk)
 
-            genedescfinal <- merge(tabl, tabl1,
-                                   by.x = "external_gene_name",
-                                   by.y = "V1")
-            write.table(genedescfinal, file = file.path(results_path,
-                                                paste0(description,
-                                                       "_", direction,
-                                                       "_", enrich_type,
-                                                       "_genes.csv")),
-                        sep = ",", row.names = FALSE)
-        } else {
-            tabl <- data.table(genedesc)
-            write.table(tabl, file = file.path(results_path,
-                                     paste0(description, "_",
-                                            direction, "_",
-                                            enrich_type,
-                                             "_genes.csv")),
-                        sep = ",", row.names = FALSE)
-
+                genedescfinal <- merge(tabl, tabl1,
+                                    by.x = "external_gene_name",
+                                    by.y = "V1")
+                write.table(genedescfinal, file = file.path(results_path,
+                                                    paste0(description,
+                                                        "_", direction,
+                                                        "_", enrich_type,
+                                                        "_genes.csv")),
+                            sep = ",", row.names = FALSE)
+            } else {
+                tabl <- data.table(genedesc)
+                write.table(tabl, file = file.path(results_path,
+                                        paste0(description, "_",
+                                                direction, "_",
+                                                enrich_type,
+                                                "_genes.csv")),
+                            sep = ",", row.names = FALSE)
+            }
         }
     }
 }
