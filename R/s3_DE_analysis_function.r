@@ -88,16 +88,13 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
             results <- decideTests(fit, lfc = log2(logfoldchange),
                                    method = "separate",
                                    adjust.method = "BH", p.value = pvalue)
-            print("test1")
-            print (results)
+
             a <- vennCounts(results)
-            print ("test2")
             write.fit(fit, file = file.path(results_path, "3.All_data.txt"),
                       digits = 3, method = "separate", adjust = "BH")
             DE_HGNC <- read.csv(file.path(results_path, "3.All_data.txt"),
                                  header = T, row.names = 1,
                                  check.names = FALSE, sep = "\t")
-            print ("test3")
             if (typeof(gene_conversion_file) == "character") {
                 rhesus2human <- read.csv(file = gene_conversion_file,
                                          header = TRUE,
@@ -108,14 +105,12 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
                 write.csv(DE_HGNC,
                           file = file.path(results_path, "3.All_data_HGNC.csv"))
             }
-            print("test3")
             write.table(fit$coefficients,
                         file = file.path(results_path, "3.All_LFC.txt"),
                         sep = "\t")
             DE_HGNC <- read.csv(file.path(results_path, "3.All_LFC.txt"),
                                 header = T, row.names = 1,
                                 check.names = FALSE, sep = "\t")
-            print("test4")
             if (typeof(gene_conversion_file) == "character") {
                 rhesus2human <- read.csv(file = gene_conversion_file,
                                          header = TRUE,
@@ -126,7 +121,6 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
                 write.csv(DE_HGNC, file = file.path(results_path,
                                                  "3.All_LFC_HGNC.csv"))
             }
-            print("test5")
             write.table(fit$p.value, file = file.path(results_path,
                                                       "3.All_Pvalues.txt"),
                         sep = "\t")
@@ -163,7 +157,6 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
             ##SIGNIFICANT LOGVALUES
             #Extract results of differential expression
             #LogFold change is the coefficients
-            print ("test6 ")
             dataMatrix <- fit$coefficients
             sigMask <- dataMatrix * (results**2) # 1 if significant, 0 otherwise
 
@@ -173,7 +166,6 @@ s3_DE_analysis <- function(countfile="./s1_norm_raw_counts_results/1.norm_matrix
             sigMask <- subset(sigMask, rowSums(sigMask) != 0)
             write.csv(ExpressMatrixLFC, file = file.path(results_path,
                                         "3.Significant_separate_LFC.csv"))
-            print ("test7")
             convert2HGNC(gene_conversion_file,
                         "3.Significant_separate_LFC.csv",
                         "3.Significant_separate_LFC_HGNC_AV.csv",
