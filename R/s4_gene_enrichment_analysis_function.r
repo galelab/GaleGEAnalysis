@@ -5,6 +5,7 @@
 #' @keywords gene enrichment analysis
 #' @param go_enrich_type type of GO enrichment to do (BP, CC, or MF) (default BP)
 #' @param universe Will specify whether you want to use the whole genome as background (FALSE) or set of total expressed genes(TRUE)
+#' @param universe_file specifies path to universe file(defualt ./s1_raw_counts_results/1.norm_matrix_HGNC.txt)
 #' @param DEgenes file containg log fold change for DE genes (default FALSE, needs to be given with log_values_column if used)
 #' @param log_fold_column column to pull from DEgenes
 #' @param rnkfile file containing list of users own genes (not generated in step s3).  Must be in rank file format (gene name & logfold value seperated by tab)
@@ -28,6 +29,7 @@
 #' s4_gene_enrichment_analysis(DEgenes=FALSE, go_enrich_type="BP", log_values_column=FALSE, modules=TRUE, pvalue=0.05, qvalue=0.05, NumTopGoTerms=30)
 
 s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
+                                        universe_file =" ./s1_raw_counts_results/1.norm_matrix_HGNC.txt",
                                         DEgenes=FALSE, log_values_column=FALSE,
                                         rnkfile=FALSE, results_folder='s4_gene_enrichment_results',
                                         comparison=FALSE, modules=TRUE,
@@ -55,7 +57,7 @@ s4_gene_enrichment_analysis <- function(go_enrich_type="BP", universe=TRUE,
     }
 
     if (isTRUE(universe)) {
-        all_genes_table <- read.table("./s1_norm_raw_counts_results/1.norm_matrix_HGNC.txt",
+        all_genes_table <- read.table(universe_file,
                                       row.names = 1, sep = "\t")
         all_universe_genes <- all_genes_table$HGNC.symbol
         all_universe_genes <- as.character(all_universe_genes)
