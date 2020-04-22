@@ -7,6 +7,7 @@
 s4_gene_enrichment_analysis(
   go_enrich_type = "BP",
   universe = TRUE,
+  universe_file = " ./s1_raw_counts_results/1.norm_matrix_HGNC.txt",
   DEgenes = FALSE,
   log_values_column = FALSE,
   rnkfile = FALSE,
@@ -25,6 +26,8 @@ s4_gene_enrichment_analysis(
 \item{go_enrich_type}{type of GO enrichment to do (BP, CC, or MF) (default BP)}
 
 \item{universe}{Will specify whether you want to use the whole genome as background (FALSE) or set of total expressed genes(TRUE)}
+
+\item{universe_file}{specifies path to universe file(defualt ./s1_raw_counts_results/1.norm_matrix_HGNC.txt)}
 
 \item{DEgenes}{file containg log fold change for DE genes (default FALSE, needs to be given with log_values_column if used)}
 
