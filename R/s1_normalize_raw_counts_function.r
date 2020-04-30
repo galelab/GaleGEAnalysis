@@ -7,6 +7,7 @@
 #' @param blocking_column column to account sampling from the same animal multiple times
 #' @param vizualize_data whether or not to generate figures (default set to true).
 #' @param filter_genes_below_counts filter out genes with counts below a certain value, (default set to 0).
+#' @param norm_method normalization method to use when normalizing LogCPM
 #' @param results_folder folder to store results in defualt is s1_norm_raw_counts_results
 #' @param figres resolution at which to output figures (default is 300).
 #' @keywords gene expression normalization
@@ -22,8 +23,9 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
                                     blocking_column=FALSE,
                                     visualize_data=TRUE,
                                     filter_genes_below_counts=0,
+                                    norm_method="none",
                                     results_folder = "s1_norm_raw_counts_results",
-                                    figres=100) {
+                                    figres=0) {
     ###READ IN FILES
     print("STATUS: loading files")
     files <- loadfiles(count_file = countfile,
@@ -33,15 +35,16 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
     #FILTER OUT GENES WITH LOW COUNTS
     print("STATUS: filtering out genes with low counts")
     A <- rowSums(DE_DF$counts)
-    isexpr <- A > filter_genes_below_counts
+    isexpr <- A >= filter_genes_below_counts
     DE_DF <- DE_DF[isexpr, ]
+
     ###NORMALIZE VIA TMM
     print("STATUS: getting normalizing factors (method TMM)")
     DE_DF_fl <- calcNormFactors(DE_DF)
 
     ###get biological coefficients of variation
     print("STATUS: getting biological coefficient of variation (takes time...)")
-    count_matrix_flv <- biological_coefficents_variation(DE_DF_fl)
+    # count_matrix_flv <- biological_coefficents_variation(DE_DF_fl)
 
     ###SET UP MODEL DESIGN
     print("STATUS: setting up model design")
@@ -91,9 +94,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
             png(file.path(results_path, "1.voomplot.png"), res = figres)
 
             #Transform count data to log2-counts per million
-            V.CPM <- voomWithQualityWeights(DE_DF_fl,
-                                            design = design,
-                                            plot = T, span = 0.1)
+            V.CPM <- voom(DE_DF_fl, normalize.method = norm_method, design = design, plot = T, span = 0.1)
             dev.off()
 
             ###save normalized counts and design variable used for linear modeling later
@@ -128,7 +129,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
             if (visualize_data == TRUE) {
                 print("STATUS: generating figures")
                 vizualize_counts(files$counts, V.CPM$E, files$targets,
-                                 count_matrix_flv, figres = figres,
+                                 figres = figres,
                                  results_path = results_path)
             }
 
@@ -148,7 +149,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
 
 ###OTHER FUNCTIONS USED BY normalize_raw_counts
 vizualize_counts <- function(countsmatrix, norm_exprs, labels,
-                             count_matrix_flv, figres=100, results_path) {
+                             figres=100, results_path) {
     #Generate figures for counts
     print("STATUS: generating log2 boxplot of counts")
     generate_boxplots(log2(countsmatrix + 1), labels[, 1],
@@ -180,13 +181,13 @@ vizualize_counts <- function(countsmatrix, norm_exprs, labels,
                           figres)
 
 
-    print("STATUS: generating biological varation vs abundance")
-    png(file.path(results_path, "1.biologicalcoefficentvariation_raw.png"),
-         res = figres)
-    # par(mar=c(1,1,1,1))
-    plotBCV(count_matrix_flv, cex = 0.4,
-            main = "Biological coefficient of variation (BCV) vs abundance")
-    dev.off()
+    # print("STATUS: generating biological varation vs abundance")
+    # png(file.path(results_path, "1.biologicalcoefficentvariation_raw.png"),
+    #      res = figres)
+    # # par(mar=c(1,1,1,1))
+    # plotBCV(count_matrix_flv, cex = 0.4,
+    #         main = "Biological coefficient of variation (BCV) vs abundance")
+    # dev.off()
 }
 
 # Biological coefficients of variation
