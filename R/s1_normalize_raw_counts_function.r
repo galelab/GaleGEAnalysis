@@ -25,7 +25,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
                                     filter_genes_below_counts=0,
                                     norm_method="none",
                                     results_folder = "s1_norm_raw_counts_results",
-                                    figres=0) {
+                                    figres=150) {
     ###READ IN FILES
     print("STATUS: loading files")
     files <- loadfiles(count_file = countfile,
@@ -43,7 +43,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
     DE_DF_fl <- calcNormFactors(DE_DF)
 
     ###get biological coefficients of variation
-    print("STATUS: getting biological coefficient of variation (takes time...)")
+    # print("STATUS: getting biological coefficient of variation (takes time...)")
     # count_matrix_flv <- biological_coefficents_variation(DE_DF_fl)
 
     ###SET UP MODEL DESIGN
@@ -70,7 +70,10 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
         if (typeof(batch_column) == "logical") {
             treatment   <- factor(files$targets[, target_column],
                             levels = unique(files$targets[, target_column]))
-            design       <- model.matrix(~0 + treatment)
+            design      <- model.matrix(~0 + treatment)
+            rownames(design) <- colnames(DE_DF$counts)
+            colnames(design) <- make.names(colnames(design))
+            design <- design[, colnames(design)[order(tolower(colnames(design[, ])))]]
 
         } else {
             treatment    <- factor(files$targets[, target_column],
@@ -78,6 +81,9 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
             batch        <- factor(files$targets[, batch_column],
                             levels = unique(files$targets[, batch_column]))
             design       <- model.matrix(~0 + treatment + batch)
+            rownames(design) <- colnames(DE_DF$counts)
+            colnames(design) <- make.names(colnames(design))
+            design <- design[, colnames(design)[order(tolower(colnames(design[, ])))]]
 
         }
 
