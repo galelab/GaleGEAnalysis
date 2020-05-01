@@ -13,7 +13,7 @@ loadfiles <- function(count_file, target_file) {
                             sep = "\t", row.names = 1,
                             as.is = TRUE, check.names = FALSE)
         counts    <- counts[, order(names(counts))]
-    } else if ((is.FALSE(count_file)) || (is.null(count_file))) {
+    } else if ((isFALSE(count_file)) || (is.null(count_file))) {
         counts <- FALSE
     }
 
@@ -22,7 +22,7 @@ loadfiles <- function(count_file, target_file) {
                                 sep = ",", row.names = 1,
                                 as.is = TRUE, check.names = FALSE)
         targets   <- targets[order(rownames(targets)), ]
-    } else if (((is.FALSE(target_file)) || is.null(count_file))) {
+    } else if (((isFALSE(target_file)) || is.null(count_file))) {
         targets <- FALSE
     }
 
