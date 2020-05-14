@@ -7,6 +7,7 @@
 #' @param blocking_column column to account sampling from the same animal multiple times
 #' @param vizualize_data whether or not to generate figures (default set to true).
 #' @param filter_genes_below_counts filter out genes with counts below a certain value, (default set to 0).
+#' @param filter_method method by which to filter genes (sum or mean, sum is defualt)
 #' @param norm_method normalization method to use when normalizing LogCPM
 #' @param results_folder folder to store results in defualt is s1_norm_raw_counts_results
 #' @param figres resolution at which to output figures (default is 300).
@@ -23,6 +24,7 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
                                     blocking_column=FALSE,
                                     visualize_data=TRUE,
                                     filter_genes_below_counts=0,
+                                    filter_method="sum",
                                     norm_method="none",
                                     results_folder = "s1_norm_raw_counts_results",
                                     figres=150) {
@@ -34,10 +36,16 @@ s1_normalize_raw_counts <- function(countfile, targetfile,
 
     #FILTER OUT GENES WITH LOW COUNTS
     print("STATUS: filtering out genes with low counts")
-    A <- rowSums(DE_DF$counts)
-    isexpr <- A >= filter_genes_below_counts
-    DE_DF <- DE_DF[isexpr, ]
-
+    if (filter_method == "sum") {
+        A <- rowSums(DE_DF$counts)
+        isexpr <- A >= filter_genes_below_counts
+        DE_DF <- DE_DF[isexpr, ]
+    }
+    else if (filter_method == "mean") {
+        A <- rowMeans(DE_DF$counts)
+        isexpr <- A >= filter_genes_below_counts
+        DE_DF <- DE_DF[isexpr, ]
+    }
     ###NORMALIZE VIA TMM
     print("STATUS: getting normalizing factors (method TMM)")
     DE_DF_fl <- calcNormFactors(DE_DF)
