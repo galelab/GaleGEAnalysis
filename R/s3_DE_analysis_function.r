@@ -468,8 +468,8 @@ convert2HGNC <- function(gene_conversion_file, input_file,
 vizualize_DE_genes_HM <- function(data, plot_file) {
     print("STATUS: Generating heatmap of DE genes...")
     png(plot_file, width = 8, height = 10, units = "in", res = 300)
-    global_modules <- heatmap.F.4(data, cutoff = 1, distmethod = "euclidean",
-                                  clustermethod = "ward.D", clusterdim = "row")
+    global_modules <- heatmap.F.4(data, cutoff = 1, distmethod = "bicor",
+                                  clustermethod = "ward.D2", clusterdim = "row")
     dev.off()
     return(global_modules)
 }
